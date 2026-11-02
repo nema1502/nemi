@@ -47,6 +47,20 @@ class Copies(BaseModel):
     luma: str = Field(description="event description for the Luma page")
 
 
+class DesignSpec(BaseModel):
+    palette: Palette
+    art_direction: str
+    key_visual_prompt: str = Field(description="portrait scene, no text, one clear main character in the middle")
+    subject: str = Field(description="short English noun phrase for that main character, e.g. 'astronaut'")
+
+
+class WordsSpec(BaseModel):
+    tagline: str = Field(description="max 8 words")
+    copies: Copies
+    grid_captions: list[str] = Field(description="9 captions, one per grid post, in posting order")
+    story_lines: list[str] = Field(description="3 lines of at most 5 words: save the date, registrations open, last call")
+
+
 class EventKitSpec(BaseModel):
     tagline: str = Field(description="max 8 words")
     palette: Palette
@@ -150,7 +164,12 @@ async def design(kit_id: str, logos: list[bytes]) -> None:
         async def thought(t: str):
             await log(kit_id, "think", t)
 
-        spec = await meta.think_json(EventKitSpec, system=DESIGNER, content=content, effort="medium", on_thought=thought)
+        # Design and words are separate calls: mixed with English design fields, the copy lost its accents
+        design_, words = await asyncio.gather(
+            meta.think_json(DesignSpec, system=DESIGNER, content=content, effort="medium", on_thought=thought),
+            meta.think_json(WordsSpec, system=DESIGNER, content=[{"type": "input_text", "text": notes}], effort="medium"),
+        )
+        spec = EventKitSpec(**design_.model_dump(), **words.model_dump())
         spec.tagline = clean(spec.tagline)
         spec.grid_captions = clean_all((spec.grid_captions + [""] * 9)[:9])
         spec.story_lines = clean_all((spec.story_lines + ["", "", ""])[:3])
