@@ -24,6 +24,7 @@
 <p align="center">
   <a href="https://nemi-eight.vercel.app/watch/demo"><b>▶ Watch an example lesson</b></a>&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://nemi-eight.vercel.app/lesson/demo"><b>Open it in the teacher studio</b></a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://nemi-eight.vercel.app/events"><b>Make an event kit</b></a>&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://nemi-eight.vercel.app">nemi-eight.vercel.app</a>
 </p>
 
@@ -67,6 +68,12 @@ and hands the teacher a live editor before anything reaches the class.
   </tr>
 </table>
 
+<p align="center">
+  <img src="docs/media/review.jpg" alt="Muse Spark's review of the finished video, with notes pinned to the minute" width="720"><br>
+  <sub><b>Muse Spark watches the finished MP4</b>, picture and sound, like a teacher before class: a score, what works,
+  and notes pinned to the minute. Click a note and the player jumps there.</sub>
+</p>
+
 The volcano lesson above was generated from one line, *"Las partes de un volcán y por qué entra en erupción, 5to de primaria, Bolivia"*,
 and it talks about **Sajama** and **Licancabur**, volcanoes Bolivian kids can actually see.
 
@@ -76,15 +83,31 @@ Each step is a Meta model doing what it is good at, and most steps are checked b
 
 | Step | Model | What happens |
 |---|---|---|
-| **Read & plan** | Muse Spark 1.3 *(Muse Wonder for dense documents)* | Reads the PDF natively and writes the lesson as structured JSON in five narrative acts: hook, problem, key idea, proof, close. Its reasoning summaries stream live into the studio. |
+| **Read & plan** | Muse Spark 1.3, or **Muse Wonder** in deep mode | Reads the PDF natively and writes the lesson as structured JSON in five narrative acts: hook, problem, key idea, proof, close. Its reasoning summaries stream live into the studio. |
 | **Review** | Muse Spark 1.3 | A second pass scores the plan against 7 audience-retention questions and flags facts the source doesn't support. A third pass fixes them. In testing it caught *"lava is not a structural part of a volcano"* and *"not every eruption explodes"*. |
-| **Illustrate** | Muse Image | One art direction per lesson, and **no text inside images**: image models garble letters, so labels are added later as real text. |
+| **Illustrate** | Muse Image | The opening picture is drawn first, and every other scene is drawn with Muse Image's edit endpoint using it as the reference, so palette, line work and characters stay the same across the lesson. **No text inside images**: image models garble letters, so labels are added later as real text. |
 | **Find the parts** | Muse Spark (vision), then SAM 3.1 | SAM alone couldn't find *"magma chamber"*: it's a concept, not a shape. So Muse Spark boxes each part roughly, and SAM 3.1 turns each box into a pixel-exact mask (4 of 4 parts, 0.79 to 0.91 confidence). |
 | **Animate** | Muse Spark writing Manim | Write the scene, dry-run it through a geometry auditor (text off-frame, overlaps, floating connectors), send errors back, render, look at the rendered frames, and repair once more if something is visibly wrong. |
 | **Teacher's voice** | Muse Voice Transcribe | Re-record any scene in your own voice from the browser. The transcript, biased with the lesson's key terms, becomes the captions. |
+| **Watch the result** | Muse Spark 1.3, video understanding | After export the MP4 goes to the Files API and Muse Spark watches it with sound: a score and notes pinned to the minute. Its first reviews said 5 seconds of quiz time was too short for 10-year-olds, so Nemi now gives 8. |
 
 Default narration uses neural TTS with Latin American voices (including Bolivian), since Meta Model API doesn't offer speech
 synthesis. Word timings drive the karaoke captions and the diagram highlights.
+
+## Nemi for events (beta)
+
+The same engines, for the people who run hackathons, meetups and community chapters. Give the event name, date, place
+and up to four logos, and Nemi drafts the whole launch kit in one style.
+
+<p align="center"><img src="docs/media/events.jpg" alt="An event launch kit: Instagram grid, story and Luma cover" width="100%"></p>
+
+- **Muse Spark** reads the logos, takes the palette from them and writes the copy for Instagram, X, LinkedIn, WhatsApp and Luma.
+- **Muse Image** draws one key visual with no text, and **Muse Spark plus SAM 3.1** cut out its main character.
+- **Remotion** lays the real logos and crisp text over every format: a 9-post Instagram grid that forms one picture,
+  a story and WhatsApp status where the character pops out of the frame, a Luma cover and a round profile picture.
+- The export cuts the grid into posts in posting order and zips everything with the copy.
+
+[Make an event kit](https://nemi-eight.vercel.app/events)
 
 ## Architecture
 
@@ -117,8 +140,9 @@ Judges: here is exactly what is new and what isn't.
   from September 2026, that Nemi uses: style helpers, icons, one reference scene, the geometry auditor and four pedagogy notes.
   Imported unchanged in the first commit, with the source commit hash.
 - **New, built from October 26 to November 4, 2026: everything else.** The lesson agent and its review loop, every Meta Model API integration,
-  the Muse Spark and SAM 3.1 diagram pipeline, the self-repairing Manim loop, teacher voice transcription, the Remotion composition
-  and all its scenes, the engine API and the web studio.
+  the Muse Spark and SAM 3.1 diagram pipeline, the self-repairing Manim loop, teacher voice transcription, the video review by
+  Muse Spark, one art style per lesson, deep mode with Muse Wonder, the Remotion composition and all its scenes, Nemi for events,
+  the engine API, the web studio and the deployment on Modal and Vercel.
 
 ## Run it locally
 

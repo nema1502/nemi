@@ -141,7 +141,7 @@ export const EventStory: React.FC<EventProps> = (props) => {
               top: oy + box[1] * dh,
               width: (box[2] - box[0]) * dw,
               height: (box[3] - box[1]) * dh,
-              transform: `scale(${1 + 0.12 * pop})`,
+              transform: `translateY(${4 * pop}%) scale(${1 + 0.06 * pop})`,
               transformOrigin: "50% 100%",
               filter: `drop-shadow(0 30px 60px ${alpha("#000000", 0.6 * pop)}) drop-shadow(0 0 40px ${alpha(p.primary, 0.6 * pop)})`,
             }}
@@ -151,7 +151,7 @@ export const EventStory: React.FC<EventProps> = (props) => {
       <AbsoluteFill style={{ background: `linear-gradient(to bottom, ${alpha(p.bg, 0.9)} 0%, transparent 28%, transparent 66%, ${alpha(p.bg, 0.95)} 90%)` }} />
       <div style={{ position: "absolute", top: 170, left: 80, right: 80, textAlign: "center", opacity: at(0.1), transform: `translateY(${(1 - at(0.1)) * 40}px)` }}>
         <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.98, letterSpacing: -3 }}>{kit.name}</div>
-        {spec && <div style={{ marginTop: 24, fontSize: 50, fontWeight: 600, color: p.accent }}>{spec.tagline}</div>}
+        {spec && <div style={{ marginTop: 24, fontSize: 50, fontWeight: 600, color: p.accent, textShadow: `0 4px 24px ${p.bg}, 0 0 12px ${p.bg}` }}>{spec.tagline}</div>}
       </div>
       <div style={{ position: "absolute", bottom: 330, left: 70, right: 70, textAlign: "center", opacity: at(2.4), transform: `translateY(${(1 - at(2.4)) * 40}px)` }}>
         <div style={{ fontSize: 58, fontWeight: 700 }}>{kit.date}</div>
