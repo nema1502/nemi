@@ -9,7 +9,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { FPS } from "./timing";
+import { FPS, punctuate } from "./timing";
 import type { Theme, Word } from "./types";
 
 // Lexend was designed to make reading easier, a good default for students.
@@ -122,19 +122,21 @@ export const Backdrop: React.FC = () => {
 };
 
 /** Karaoke captions: the spoken word lights up. */
-export const Captions: React.FC<{ words: Word[]; offset: number }> = ({ words, offset }) => {
+export const Captions: React.FC<{ words: Word[]; text?: string; offset: number }> = ({ words: spoken, text, offset }) => {
   const frame = useCurrentFrame();
   const { theme } = useLesson();
   const { portrait, width } = useLayout();
   const t = frame / FPS - offset;
-  if (!words.length || t < -0.1) return null;
+  if (!spoken.length || t < -0.1) return null;
+  const words = text ? punctuate(spoken, text) : spoken;
 
-  // Pages of ~7 words, broken early at long pauses
+  // Pages of ~7 words, broken early at sentence ends and long pauses
   const pages: Word[][] = [];
   let cur: Word[] = [];
   words.forEach((w, i) => {
     const gap = i > 0 ? w.start - words[i - 1].end : 0;
-    if (cur.length >= (portrait ? 5 : 7) || (gap > 0.45 && cur.length)) {
+    const stop = i > 0 && /[.!?]["')]*$/.test(words[i - 1].text);
+    if (cur.length && (cur.length >= (portrait ? 5 : 7) || gap > 0.45 || stop)) {
       pages.push(cur);
       cur = [];
     }

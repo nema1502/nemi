@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import sample from "./sample.json";
-import { cues, estimate, FPS, LEAD, sceneTiming, THINK, timeline } from "./timing";
+import { cues, estimate, FPS, LEAD, punctuate, sceneTiming, THINK, timeline } from "./timing";
 import type { Lesson, Scene, Word } from "./types";
 
 const lesson = sample as unknown as Lesson;
@@ -61,5 +61,20 @@ describe("cues", () => {
   it("falls back to even spacing without word timings", () => {
     const t = cues(["a", "b"], undefined, 10);
     expect(t[0]).toBeLessThan(t[1]);
+  });
+});
+
+describe("punctuate", () => {
+  const at = (texts: string[]): Word[] => texts.map((text, i) => ({ text, start: i, end: i + 0.8 }));
+
+  it("gives the voice's words their punctuation back from the script", () => {
+    const words = punctuate(at(["Qué", "es", "la", "lava", "Roca", "que", "sale"]), "¿Qué es la lava? Roca que sale.");
+    expect(words.map((w) => w.text)).toEqual(["¿Qué", "es", "la", "lava?", "Roca", "que", "sale."]);
+    expect(words[3].start).toBe(3);
+  });
+
+  it("leaves words it cannot find untouched", () => {
+    const words = punctuate(at(["three", "rocks"]), "3 rocks.");
+    expect(words.map((w) => w.text)).toEqual(["three", "rocks."]);
   });
 });

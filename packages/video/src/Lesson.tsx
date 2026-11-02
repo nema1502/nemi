@@ -63,8 +63,8 @@ const SceneView: React.FC<TimelineItem> = ({ scene, timing }) => {
           <Audio src={asset(reveal.audio)} />
         </Sequence>
       )}
-      {captions && narr && <Captions words={narr.words} offset={LEAD} />}
-      {captions && reveal && <Captions words={reveal.words} offset={timing.revealStart} />}
+      {captions && narr && <Captions words={narr.words} text={narr.text} offset={LEAD} />}
+      {captions && reveal && <Captions words={reveal.words} text={reveal.text} offset={timing.revealStart} />}
     </AbsoluteFill>
   );
 };

@@ -127,10 +127,17 @@ export const EventStory: React.FC<EventProps> = (props) => {
   const dh = ih * k;
   const ox = (width - dw) / 2;
   const oy = (height - dh) / 2;
+  // A big subject would sit behind the event name: lower the picture until its top clears the title
+  const lift = box ? Math.max(0, height * 0.38 - (oy + box[1] * dh)) : 0;
   const pop = at(0.6);
   return (
     <AbsoluteFill style={{ background: p.bg, fontFamily, color: p.ink, overflow: "hidden" }}>
-      <AbsoluteFill style={{ transform: `scale(${zoom})` }}>
+      <AbsoluteFill
+        style={{
+          transform: `translateY(${lift}px) scale(${zoom})`,
+          maskImage: lift ? "linear-gradient(to bottom, transparent 0%, #000 16%)" : undefined,
+        }}
+      >
         <Visual src={asset(kit.key_visual)} style={{ filter: kit.cutout ? `blur(${4 * pop}px) brightness(${1 - 0.35 * pop})` : undefined }} />
         {kit.cutout && box && (
           <Img
@@ -153,17 +160,18 @@ export const EventStory: React.FC<EventProps> = (props) => {
         <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.98, letterSpacing: -3 }}>{kit.name}</div>
         {spec && <div style={{ marginTop: 24, fontSize: 50, fontWeight: 600, color: p.accent, textShadow: `0 4px 24px ${p.bg}, 0 0 12px ${p.bg}` }}>{spec.tagline}</div>}
       </div>
-      <div style={{ position: "absolute", bottom: 330, left: 70, right: 70, textAlign: "center", opacity: at(2.4), transform: `translateY(${(1 - at(2.4)) * 40}px)` }}>
-        <div style={{ fontSize: 58, fontWeight: 700 }}>{kit.date}</div>
-        <div style={{ marginTop: 10, fontSize: 44, color: alpha(p.ink, 0.85) }}>{kit.place}</div>
-      </div>
-      {spec?.story_lines[line] && (
-        <div style={{ position: "absolute", bottom: 190, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: at(3.4) }}>
-          <div style={{ transform: `scale(${at(3.4) * pulse})`, maxWidth: 900, textAlign: "center", background: p.accent, color: p.bg, fontSize: 46, fontWeight: 800, lineHeight: 1.15, padding: "22px 46px", borderRadius: 48 }}>
+      {/* Date, place and call to action stack from the bottom, so a call to action on two lines never covers the place */}
+      <div style={{ position: "absolute", bottom: 190, left: 70, right: 70, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <div style={{ opacity: at(2.4), transform: `translateY(${(1 - at(2.4)) * 40}px)` }}>
+          <div style={{ fontSize: 58, fontWeight: 700 }}>{kit.date}</div>
+          <div style={{ marginTop: 10, fontSize: 44, color: alpha(p.ink, 0.85) }}>{kit.place}</div>
+        </div>
+        {spec?.story_lines[line] && (
+          <div style={{ marginTop: 40, opacity: at(3.4), transform: `scale(${at(3.4) * pulse})`, maxWidth: 900, background: p.accent, color: p.bg, fontSize: 46, fontWeight: 800, lineHeight: 1.15, padding: "22px 46px", borderRadius: 48 }}>
             {spec.story_lines[line]}
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <Logos kit={kit} asset={asset} height={86} style={{ position: "absolute", bottom: 70, left: 0, right: 0, justifyContent: "center", opacity: at(1.2) }} />
     </AbsoluteFill>
   );

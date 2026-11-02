@@ -149,7 +149,8 @@ From the organizer's notes and their logos, design a launch kit that feels like 
   At most two emojis per post. Correct spelling with every accent of the language (sábado, not sabado).
   Plain punctuation: no em dashes, guillemets or middle dots.
 - grid_captions: 9 short captions for the 9 posts of an Instagram grid that forms one big picture.
-- story_lines: 3 lines of at most 5 words each (save the date, registrations open, last call)."""
+- story_lines: 3 lines of at most 5 words each (save the date, registrations open, last call), punctuated like
+  normal sentences ("Registrations open, join now")."""
 
 
 async def design(kit_id: str, logos: list[bytes]) -> None:

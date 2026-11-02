@@ -59,6 +59,26 @@ const norm = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\p{L}\p{N}]/gu, "");
 
 /**
+ * Words from the voice come without punctuation: take each word's written form back from the script,
+ * in order, so captions can show "lava." and break where the sentence ends.
+ */
+export function punctuate(words: Word[], text: string): Word[] {
+  const tokens = text.split(/\s+/).filter(Boolean);
+  let cursor = 0;
+  return words.map((w) => {
+    const key = norm(w.text);
+    if (!key) return w;
+    for (let j = cursor; j < Math.min(tokens.length, cursor + 4); j++) {
+      if (norm(tokens[j]) === key) {
+        cursor = j + 1;
+        return { ...w, text: tokens[j] };
+      }
+    }
+    return w;
+  });
+}
+
+/**
  * When does the voice say each of these phrases? Returns seconds from the audio start.
  * Matches the first significant word of each phrase, in order; falls back to even spacing.
  */
