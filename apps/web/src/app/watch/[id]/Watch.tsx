@@ -1,9 +1,11 @@
 "use client";
 
+import { FPS } from "@nemi/video";
+import type { PlayerRef } from "@remotion/player";
 import { CircleHelp, Loader2, Trophy } from "lucide-react";
 import { motion } from "motion/react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LessonPlayer } from "@/components/LessonPlayer";
 import { Logo } from "@/components/Logo";
 import { api, isDemo, useLessonLive } from "@/lib/engine";
@@ -14,6 +16,20 @@ export function Watch() {
   const { id } = useParams<{ id: string }>();
   const { lesson, error } = useLessonLive(id);
   const [score, setScore] = useState<{ right: number; total: number } | null>(null);
+  const player = useRef<PlayerRef>(null);
+  const loaded = !!lesson;
+
+  // ?t=40 opens the lesson at that second, so a teacher can share one moment
+  useEffect(() => {
+    const t = Number(new URLSearchParams(window.location.search).get("t"));
+    if (!loaded || !(t > 0)) return;
+    const timer = setInterval(() => {
+      if (!player.current) return;
+      player.current.seekTo(Math.round(t * FPS));
+      clearInterval(timer);
+    }, 100);
+    return () => clearInterval(timer);
+  }, [loaded]);
   const [name, setName] = useState("");
   useEffect(() => {
     try {
@@ -68,6 +84,7 @@ export function Watch() {
         <LessonPlayer
           lesson={lesson}
           interactive
+          playerRef={player}
           onScore={setScore}
           onAnswer={(sceneId, picked) => {
             // Answers go to the teacher's Class results (not for the built-in examples)
