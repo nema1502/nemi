@@ -21,7 +21,8 @@ export const actColor = (act: Act, t: Theme) =>
 export const LessonVideo: React.FC<LessonProps> = ({ lesson, assetBase, captions = true, interactive = false }) => {
   const { items } = useMemo(() => timeline(lesson), [lesson]);
   const base = assetBase.replace(/\/$/, "");
-  const asset = useCallback((p: string | null | undefined) => (!p ? "" : /^(https?:|data:|blob:)/.test(p) ? p : `${base}/${p}`), [base]);
+  // Engine assets are relative ("files/…"); absolute URLs and site paths ("/demo/…") are used as they are
+  const asset = useCallback((p: string | null | undefined) => (!p ? "" : /^(https?:|data:|blob:|\/)/.test(p) ? p : `${base}/${p}`), [base]);
   const ctx = useMemo(() => ({ theme: lesson.theme, asset, captions, interactive }), [lesson.theme, asset, captions, interactive]);
 
   return (

@@ -10,7 +10,7 @@ import { AgentLog, AgentStage } from "@/components/AgentLog";
 import { LessonPlayer } from "@/components/LessonPlayer";
 import { Logo } from "@/components/Logo";
 import { KIND, SceneEditor } from "@/components/SceneEditor";
-import { api, asset, busy, useLessonLive } from "@/lib/engine";
+import { api, asset, busy, DEMO_ID, useLessonLive } from "@/lib/engine";
 
 const THEMES = ["night", "chalk", "paper"];
 
@@ -35,7 +35,8 @@ export function Studio() {
   }
 
   const patch = async (body: Parameters<typeof api.patch>[1]) => setLesson(await api.patch(lesson.id, body));
-  const working = busy(lesson);
+  const demo = lesson.id === DEMO_ID;
+  const working = !demo && busy(lesson);
   const share = () => {
     navigator.clipboard.writeText(`${window.location.origin}/watch/${lesson.id}`);
     setCopied(true);
@@ -48,19 +49,25 @@ export function Studio() {
         <Logo small />
         <span className="hidden h-5 w-px bg-line sm:block" />
         <h1 className="min-w-0 flex-1 truncate text-lg font-bold">{lesson.title || lesson.topic || lesson.source_name}</h1>
-        <StatusPill lesson={lesson} working={working} />
-        <div className="flex rounded-xl border border-line bg-panel-2 p-1">
-          {THEMES.map((t) => (
-            <button key={t} onClick={() => patch({ theme: t })} className={`rounded-lg px-2.5 py-1 text-xs font-semibold capitalize ${lesson.theme.name === t ? "bg-violet text-[#120f22]" : "text-muted hover:text-ink"}`}>{t}</button>
-          ))}
-        </div>
-        <button className="btn-ghost px-3" title="Switch format" onClick={() => patch({ format: lesson.format === "landscape" ? "portrait" : "landscape" })}>
-          {lesson.format === "landscape" ? <Monitor className="size-4" /> : <Smartphone className="size-4" />}
-        </button>
+        {demo ? (
+          <span className="rounded-full bg-violet/15 px-2.5 py-1 text-xs font-semibold text-violet">Example lesson · read-only</span>
+        ) : (
+          <>
+            <StatusPill lesson={lesson} working={working} />
+            <div className="flex rounded-xl border border-line bg-panel-2 p-1">
+              {THEMES.map((t) => (
+                <button key={t} onClick={() => patch({ theme: t })} className={`rounded-lg px-2.5 py-1 text-xs font-semibold capitalize ${lesson.theme.name === t ? "bg-violet text-[#120f22]" : "text-muted hover:text-ink"}`}>{t}</button>
+              ))}
+            </div>
+            <button className="btn-ghost px-3" title="Switch format" onClick={() => patch({ format: lesson.format === "landscape" ? "portrait" : "landscape" })}>
+              {lesson.format === "landscape" ? <Monitor className="size-4" /> : <Smartphone className="size-4" />}
+            </button>
+          </>
+        )}
         <button className="btn-ghost" onClick={share} disabled={!lesson.scenes.length}>
           {copied ? <Check className="size-4 text-green" /> : <Link2 className="size-4" />}Student link
         </button>
-        <ExportButton lesson={lesson} onStart={async () => setLesson(await api.render(lesson.id))} disabled={working} />
+        {!demo && <ExportButton lesson={lesson} onStart={async () => setLesson(await api.render(lesson.id))} disabled={working} />}
       </header>
 
       <div className="grid flex-1 gap-5 lg:grid-cols-[minmax(0,1fr)_400px]">
@@ -122,6 +129,7 @@ export function Studio() {
                     onToggle={() => setOpen(open === s.id ? null : s.id)}
                     onSeek={() => { const it = tl?.items.find((x) => x.scene.id === s.id); if (it) player.current?.seekTo(it.from); }}
                     onChange={setLesson}
+                    readOnly={demo}
                   />
                 ))}
               </div>

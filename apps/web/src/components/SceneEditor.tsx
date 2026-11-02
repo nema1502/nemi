@@ -21,9 +21,18 @@ export const KIND: Record<Scene["kind"], { icon: typeof Brain; label: string }> 
   summary: { icon: ListChecks, label: "Summary" },
 };
 
-type Props = { lesson: Lesson; scene: Scene; index: number; open: boolean; onToggle: () => void; onSeek: () => void; onChange: (l: Lesson) => void };
+type Props = {
+  lesson: Lesson;
+  scene: Scene;
+  index: number;
+  open: boolean;
+  onToggle: () => void;
+  onSeek: () => void;
+  onChange: (l: Lesson) => void;
+  readOnly?: boolean;
+};
 
-export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onChange }: Props) {
+export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onChange, readOnly = false }: Props) {
   const [draft, setDraft] = useState<ScenePatch>({});
   const [saving, setSaving] = useState(false);
   const [working, setWorking] = useState<string | null>(null);
@@ -107,7 +116,7 @@ export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onCh
               {scene.kind === "diagram" && <DiagramStatus scene={scene} />}
               {scene.kind === "manim" && <ManimStatus scene={scene} />}
 
-              <div className="flex flex-wrap gap-2 pt-1">
+              {!readOnly && <div className="flex flex-wrap gap-2 pt-1">
                 {dirty && (
                   <button onClick={save} disabled={saving} className="btn-primary">
                     {saving ? <Loader2 className="size-4 animate-spin" /> : <Captions className="size-4" />}Save{draft.narration ? " & re-voice" : ""}
@@ -124,7 +133,7 @@ export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onCh
                   </button>
                 )}
                 <Recorder script={v("narration")} onDone={async (blob) => onChange(await api.voice(lesson.id, scene.id, blob))} />
-              </div>
+              </div>}
             </div>
           </motion.div>
         )}

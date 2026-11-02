@@ -34,7 +34,7 @@ export function CreateForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.options().then(setOpts).catch(() => setError("Can't reach the Nemi engine. Is it running?"));
+    api.options().then(setOpts).catch(() => setError("The lesson engine is offline right now. You can still open the example lesson below."));
   }, []);
 
   const pickLanguage = (l: string) => {

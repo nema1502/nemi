@@ -1,0 +1,9 @@
+# Only the web app and the video package are needed to build the site
+engine
+docs
+packages/video/build
+packages/video/out
+**/.next
+**/node_modules
+.env
+.env.*

@@ -27,3 +27,6 @@ engine/media/
 # reports the geometry auditor writes next to itself
 engine/motor/auditoria/
 engine/motor/media/
+
+# vercel cli
+.vercel
