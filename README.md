@@ -85,6 +85,15 @@ and hands the teacher a live editor before anything reaches the class.
 The volcano lesson above was generated from one line, *"Las partes de un volcán y por qué entra en erupción, 5to de primaria, Bolivia"*,
 and it talks about **Sajama** and **Licancabur**, volcanoes Bolivian kids can actually see.
 
+More examples, each made from one line and reviewed by Muse Spark, open read-only in the studio:
+
+| Lesson | Language | Format | Shows |
+|---|---|---|---|
+| [El atajo secreto del rectángulo](https://nemi-eight.vercel.app/lesson/demo-pitagoras) | Spanish | Classroom 16:9 | The Pythagorean theorem: a Manim proof with 3, 4 and 5, and a diagram of the three squares |
+| [How Plants Make Food](https://nemi-eight.vercel.app/lesson/demo-photosynthesis) | English | Phone 9:16 | Photosynthesis for grade 5. Muse Spark caught the equation running off the phone screen; after the fix, 7 to 9 |
+| [La Tierra por dentro](https://nemi-eight.vercel.app/lesson/demo-tierra) | Spanish | Classroom 16:9 | The Earth's layers, then the egg analogy; Muse Spark's fixes took it from 8 to 9 |
+| [Para onde vai o Sol à noite?](https://nemi-eight.vercel.app/lesson/demo-sistema-solar) | Portuguese | Classroom 16:9 | Day and night for Brazilian kids, with the Sun, day and night sides found by SAM 3.1 |
+
 ## How Meta's models work together
 
 Each step is a Meta model doing what it is good at, and most steps are checked by another one.
