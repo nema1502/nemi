@@ -178,7 +178,7 @@ importers:
         specifier: 0.19.1
         version: 0.19.1
       lucide-react:
-        specifier: latest
+        specifier: 1.66.0
         version: 1.66.0(@types/react@19.3.0)(react@19.3.0)
       motion:
         specifier: 14.9.0

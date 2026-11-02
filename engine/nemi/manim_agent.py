@@ -122,7 +122,14 @@ def _render(path: Path, cls: str, media: Path) -> Path:
     subprocess.run([config.PYTHON, "-m", "manim", "render", "--format", "mp4", "--disable_caching",
                     "--media_dir", str(media), "-v", "WARNING", str(path), cls],
                    cwd=path.parent, capture_output=True, text=True, check=True, timeout=900)
-    return next(media.rglob(f"{cls}.mp4"))
+    raw = next(media.rglob(f"{cls}.mp4"))
+    # Normalize to constant-frame-rate H.264 with regular keyframes: Remotion's
+    # frame extractor can't seek reliably in Manim's own encoding.
+    clip = media / "clip.mp4"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-an", "-c:v", "libx264",
+                    "-pix_fmt", "yuv420p", "-r", "30", "-g", "30", "-crf", "18", "-movflags", "+faststart",
+                    str(clip)], check=True)
+    return clip
 
 
 def _frames(video: Path, duration: float, out: Path) -> list[bytes]:
@@ -201,7 +208,7 @@ Module skeleton (fill in construct):
                      *[meta.image_part(s) for s in shots]],
         )
         attempts.append(ManimAttempt(attempt=len(attempts) + 1, errors=[] if look.ok else look.issues,
-                                     warnings=["vision check passed"] if look.ok else []))
+                                     warnings=["vision check passed" if look.ok else "vision check"]))
         await on_step(-1, [] if look.ok else look.issues, [], False)
         if not look.ok:
             fix = ("A reviewer looked at frames of your rendered scene and found:\n- " + "\n- ".join(look.issues)

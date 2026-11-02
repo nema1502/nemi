@@ -1,26 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0b0a16;
+  --panel: #13111f;
+  --panel-2: #1a1729;
+  --line: #2a2640;
+  --ink: #f5f7ff;
+  --muted: #9aa3b8;
+  --violet: #a78bfa;
+  --teal: #5ee7df;
+  --amber: #ffc94d;
+  --green: #3ddc84;
+  --red: #ff5c5c;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-violet: var(--violet);
+  --color-teal: var(--teal);
+  --color-amber: var(--amber);
+  --color-green: var(--green);
+  --color-red: var(--red);
+  --font-sans: var(--font-lexend);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgb(167 139 250 / 0.14), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgb(94 231 223 / 0.08), transparent 60%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--font-lexend), system-ui, sans-serif;
+}
+
+::selection {
+  background: rgb(167 139 250 / 0.4);
+}
+
+@utility field {
+  @apply w-full rounded-xl border border-line bg-panel-2 px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:border-violet/70 focus:ring-2 focus:ring-violet/20;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-violet text-[#120f22] hover:bg-[#b9a2ff];
+}
+
+@utility btn-ghost {
+  @apply btn border border-line bg-panel-2 text-ink hover:border-violet/50;
+}
+
+@utility label {
+  @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted;
 }
