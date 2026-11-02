@@ -86,6 +86,7 @@ export type Lesson = {
   format: "landscape" | "portrait";
   voice: string;
   theme: Theme;
+  planner: string;
   title: string;
   subtitle: string;
   objectives: string[];

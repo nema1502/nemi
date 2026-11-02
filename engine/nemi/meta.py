@@ -123,6 +123,13 @@ async def draw(prompt: str, size: str) -> bytes:
     return base64.b64decode(resp.data[0].b64_json)
 
 
+async def draw_like(prompt: str, size: str, reference_png: bytes) -> bytes:
+    """A new picture in the style (and with the characters) of a reference image."""
+    resp = await client.images.edit(model=config.IMAGE_MODEL, prompt=prompt, n=1, size=size,
+                                    image=("reference.png", reference_png, "image/png"))
+    return base64.b64decode(resp.data[0].b64_json)
+
+
 # ---------------------------------------------------------------- SAM 3.1
 
 async def segment(image_png: bytes, concept: str) -> list[dict]:

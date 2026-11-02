@@ -23,9 +23,20 @@ def image_size_for(kind: str, fmt: str) -> str:
     return "1792x1024" if kind == "hook" else "1536x1024"
 
 
-async def illustrate(lesson: Lesson, scene: Scene, out: Path) -> tuple[int, int]:
-    prompt = f"{scene.image_prompt}\nStyle: {lesson.art_direction}\n{NO_TEXT}"
-    png = await meta.draw(prompt, image_size_for(scene.kind, lesson.format))
+async def illustrate(lesson: Lesson, scene: Scene, out: Path, reference: bytes | None = None) -> tuple[int, int]:
+    """Draw a scene. With a reference (the lesson's opening picture) every scene keeps one style and cast."""
+    size = image_size_for(scene.kind, lesson.format)
+    png = None
+    if reference:
+        prompt = ("Draw a NEW illustration in exactly the same art style as the reference image: same palette, "
+                  "line work, shading and character design. Reuse its characters if people appear. Do not reuse "
+                  f"its composition or subject.\nNew scene: {scene.image_prompt}\nStyle: {lesson.art_direction}\n{NO_TEXT}")
+        try:
+            png = await meta.draw_like(prompt, size, reference)
+        except Exception:
+            png = None  # fall back to a fresh drawing rather than fail the scene
+    if png is None:
+        png = await meta.draw(f"{scene.image_prompt}\nStyle: {lesson.art_direction}\n{NO_TEXT}", size)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(png)
     return Image.open(BytesIO(png)).size

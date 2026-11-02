@@ -179,6 +179,7 @@ class Lesson(BaseModel):
     format: Format = "landscape"
     voice: str = "es-BO-MarceloNeural"
     theme: Theme = THEMES["night"]
+    planner: str = "muse-spark-1.3"  # muse-wonder-1.0 in deep mode
     # plan
     title: str = ""
     subtitle: str = ""

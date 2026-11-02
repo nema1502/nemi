@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Loader2, Monitor, Smartphone, Sparkles, Upload, X } from "lucide-react";
+import { Brain, FileText, Loader2, Monitor, Smartphone, Sparkles, Upload, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -37,6 +37,7 @@ export function CreateForm() {
   const [length, setLength] = useState("short");
   const [format, setFormat] = useState<"landscape" | "portrait">("landscape");
   const [theme, setTheme] = useState("night");
+  const [deep, setDeep] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +68,7 @@ export function CreateForm() {
     form.append("length", length);
     form.append("format", format);
     form.append("theme", theme);
+    form.append("deep", String(deep));
     if (mode === "pdf" && file) form.append("file", file);
     try {
       const lesson = await api.create(form);
@@ -175,6 +177,14 @@ export function CreateForm() {
           </div>
         </div>
       </div>
+
+      <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-panel-2/60 p-3.5 transition hover:border-violet/50">
+        <input type="checkbox" checked={deep} onChange={(e) => setDeep(e.target.checked)} className="mt-1 size-4 accent-[var(--violet)]" />
+        <span>
+          <span className="flex items-center gap-1.5 text-sm font-semibold"><Brain className="size-4 text-violet" />{t.deep}</span>
+          <span className="mt-0.5 block text-xs text-muted">{t.deepHint}</span>
+        </span>
+      </label>
 
       {(error || offline) && <p className="mt-4 rounded-xl border border-red/40 bg-red/10 px-3 py-2 text-sm text-red">{error ?? t.offline}</p>}
 

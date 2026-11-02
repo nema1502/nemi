@@ -34,6 +34,10 @@ async def set_status(lesson_id: str, status: str, **fields) -> None:
             setattr(lesson, k, v)
 
 
+def _model_name(model_id: str) -> str:
+    return "Muse Wonder" if "wonder" in model_id else "Muse Spark"
+
+
 # ---------------------------------------------------------------- whole lesson
 
 async def create(lesson_id: str, *, length: str, pdf: tuple[bytes, str] | None) -> None:
@@ -44,11 +48,11 @@ async def create(lesson_id: str, *, length: str, pdf: tuple[bytes, str] | None) 
 
         if pdf:
             await set_status(lesson_id, "reading")
-            await log(lesson_id, "read", f"Muse Spark is reading {pdf[1]}")
+            await log(lesson_id, "read", f"{_model_name(lesson.planner)} is reading {pdf[1]}")
         await set_status(lesson_id, "planning")
-        await log(lesson_id, "plan", "Planning the lesson in five acts")
+        await log(lesson_id, "plan", f"{_model_name(lesson.planner)} is planning the lesson in five acts")
         common = dict(audience=lesson.audience, language=lesson.language, pdf=pdf)
-        plan = await planner.plan(topic=lesson.topic, length=length, on_thought=thought, **common)
+        plan = await planner.plan(topic=lesson.topic, length=length, on_thought=thought, model=lesson.planner, **common)
         await log(lesson_id, "plan", f"Draft ready: {len(plan.scenes)} scenes, \"{plan.title}\"", "ok")
 
         await set_status(lesson_id, "reviewing")
@@ -61,7 +65,7 @@ async def create(lesson_id: str, *, length: str, pdf: tuple[bytes, str] | None) 
         if planner.needs_revision(review):
             await log(lesson_id, "review", "Revising the plan with the reviewer's notes")
             plan = await planner.revise(plan, review, topic=lesson.topic, length=length,
-                                        on_thought=thought, **common)
+                                        on_thought=thought, model=lesson.planner, **common)
             await log(lesson_id, "review", "Plan revised", "ok")
         plan = planner.tidy(plan)
 
@@ -83,6 +87,13 @@ async def create(lesson_id: str, *, length: str, pdf: tuple[bytes, str] | None) 
 
 async def produce_all(lesson_id: str) -> None:
     lesson = store.load(lesson_id)
+    # The opening picture is drawn first: every other illustration uses it as its style reference
+    hook = next((s for s in lesson.scenes if s.kind == "hook" and s.image_prompt), None)
+    if hook and not hook.assets.image:
+        try:
+            await draw(lesson_id, hook.id)
+        except Exception as e:
+            await log(lesson_id, "image", f"Opening picture failed: {str(e)[:150]}", "warn")
     results = await asyncio.gather(*(produce_scene(lesson_id, s.id) for s in lesson.scenes),
                                    return_exceptions=True)
     for s, r in zip(lesson.scenes, results):
@@ -94,7 +105,7 @@ async def produce_all(lesson_id: str) -> None:
 async def produce_scene(lesson_id: str, scene_id: str) -> None:
     _, scene = _scene(lesson_id, scene_id)
     jobs = [narrate(lesson_id, scene_id)]
-    if scene.kind in ("hook", "image", "diagram"):
+    if scene.kind in ("hook", "image", "diagram") and not scene.assets.image:
         jobs.append(draw(lesson_id, scene_id))
     await asyncio.gather(*jobs)
     if scene.kind == "diagram":
@@ -128,8 +139,13 @@ async def narrate(lesson_id: str, scene_id: str) -> None:
 async def draw(lesson_id: str, scene_id: str) -> None:
     lesson, scene = _scene(lesson_id, scene_id)
     out = folder(lesson_id) / "img" / f"{scene_id}-{_tag(scene.image_prompt or '', lesson.art_direction)}.png"
-    await log(lesson_id, "image", f"Muse Image is drawing \"{scene.title}\"")
-    size = await media.illustrate(lesson, scene, out)
+    hook = next((s for s in lesson.scenes if s.kind == "hook" and s.assets.image), None)
+    reference = None
+    if hook and hook.id != scene_id:
+        reference = (folder(lesson_id).parent / Path(hook.assets.image).relative_to("files")).read_bytes()
+    await log(lesson_id, "image", f"Muse Image is drawing \"{scene.title}\""
+                                  + (" in the style of the opening scene" if reference else ""))
+    size = await media.illustrate(lesson, scene, out, reference)
 
     def apply(s: Scene):
         s.assets.image, s.assets.image_size = rel(out), size

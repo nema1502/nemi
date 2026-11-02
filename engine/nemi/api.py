@@ -53,6 +53,7 @@ async def create_lesson(
     format: Literal["landscape", "portrait"] = Form("landscape"),
     length: Literal["short", "standard", "long"] = Form("short"),
     theme: str = Form("night"),
+    deep: bool = Form(False),
     file: UploadFile | None = File(None),
 ):
     pdf = None
@@ -64,7 +65,8 @@ async def create_lesson(
     if not topic.strip() and not pdf:
         raise HTTPException(400, "Give a topic or attach a PDF")
     lesson = Lesson(topic=topic.strip(), audience=audience, language=language, voice=voice, format=format,
-                    theme=THEMES.get(theme, THEMES["night"]), source_name=pdf[1] if pdf else None)
+                    theme=THEMES.get(theme, THEMES["night"]), source_name=pdf[1] if pdf else None,
+                    planner="muse-wonder-1.0" if deep else config.PLANNER_MODEL)
     store.save(lesson)
     if pdf:
         (folder(lesson.id) / "source.pdf").write_bytes(pdf[0])

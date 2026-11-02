@@ -8,8 +8,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef } from "react";
 
 const STEP: Record<string, { icon: typeof Brain; label: string; color: string }> = {
-  read: { icon: BookOpen, label: "Muse Spark", color: "text-teal" },
-  plan: { icon: Sparkles, label: "Muse Spark", color: "text-violet" },
+  read: { icon: BookOpen, label: "Reading", color: "text-teal" },
+  plan: { icon: Sparkles, label: "Planner", color: "text-violet" },
   think: { icon: Brain, label: "thinking", color: "text-violet/70" },
   review: { icon: ListChecks, label: "Review", color: "text-amber" },
   image: { icon: WandSparkles, label: "Muse Image", color: "text-teal" },

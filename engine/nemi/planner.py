@@ -21,12 +21,12 @@ def _content(text: str, pdf: tuple[bytes, str] | None) -> list[dict]:
 
 
 async def plan(*, topic: str, audience: str, language: str, length: str,
-               pdf: tuple[bytes, str] | None, on_thought) -> LessonPlanSpec:
+               pdf: tuple[bytes, str] | None, on_thought, model: str = config.PLANNER_MODEL) -> LessonPlanSpec:
     return await meta.think_json(
         LessonPlanSpec,
         system=prompts.director(language=language, audience=audience, length=length, from_document=bool(pdf)),
         content=_content(_request(topic, audience, bool(pdf)), pdf),
-        model=config.PLANNER_MODEL, effort="high", on_thought=on_thought,
+        model=model, effort="high", on_thought=on_thought,
     )
 
 
@@ -45,7 +45,8 @@ async def review(plan_: LessonPlanSpec, *, audience: str, language: str,
 
 
 async def revise(plan_: LessonPlanSpec, review_: ReviewSpec, *, topic: str, audience: str, language: str,
-                 length: str, pdf: tuple[bytes, str] | None, on_thought) -> LessonPlanSpec:
+                 length: str, pdf: tuple[bytes, str] | None, on_thought,
+                 model: str = config.PLANNER_MODEL) -> LessonPlanSpec:
     notes = [f"- {c.question}: {c.verdict.upper()}. {c.reason}. Fix: {c.fix}"
              for c in review_.checks if c.verdict != "yes"]
     notes += [f"- Fact issue: {f}" for f in review_.fact_issues]
@@ -56,7 +57,7 @@ async def revise(plan_: LessonPlanSpec, review_: ReviewSpec, *, topic: str, audi
         content=_content(
             f"{_request(topic, audience, bool(pdf))}\n\nCurrent plan:\n{plan_.model_dump_json(indent=1)}"
             f"\n\nReviewer notes:\n" + "\n".join(notes), pdf),
-        model=config.PLANNER_MODEL, effort="medium", on_thought=on_thought,
+        model=model, effort="medium", on_thought=on_thought,
     )
 
 
