@@ -73,6 +73,10 @@ and hands the teacher a live editor before anything reaches the class.
     <td width="50%"><img src="docs/media/quiz.jpg" alt="Quiz scene"><br><sub><b>Quiz pauses.</b> On the student link the video stops and waits for an answer, then explains it. The teacher gets every answer, and Muse Spark suggests what to reteach.</sub></td>
     <td width="50%"><img src="docs/media/studio.jpg" alt="Teacher studio"><br><sub><b>Teacher studio.</b> A lesson made from a PDF chapter: live preview, the agent's work step by step, and Muse Spark's review of the finished video.</sub></td>
   </tr>
+  <tr>
+    <td width="50%"><img src="docs/media/guide.jpg" alt="First-visit guide in the studio"><br><sub><b>Understood on first use.</b> A four-step guide lights up each part of the studio the first time a teacher opens a lesson. The whole studio works in Spanish and English.</sub></td>
+    <td width="50%"><img src="docs/media/gallery.jpg" alt="Example lessons in three languages"><br><sub><b>Examples to start from.</b> Science, math and geography in Spanish, English and Portuguese, in classroom and phone formats, each one reviewed by Muse Spark.</sub></td>
+  </tr>
 </table>
 
 <p align="center">

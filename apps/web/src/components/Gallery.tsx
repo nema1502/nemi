@@ -32,7 +32,10 @@ export function Gallery() {
 
   useEffect(() => {
     Promise.all(DEMOS.map(demoCard)).then((cards) => setDemos(cards.filter((c): c is LessonCard => !!c)));
-    api.list().then(setMine).catch(() => {});
+    // Lessons made on this engine: one card per title, and none that failed
+    api.list()
+      .then((all) => setMine(all.filter((l, i) => l.status !== "error" && (!l.title || all.findIndex((x) => x.title === l.title) === i))))
+      .catch(() => {});
   }, []);
 
   // Examples in the page's language first
