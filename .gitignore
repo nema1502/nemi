@@ -23,3 +23,7 @@ Thumbs.db
 
 # manim caches when run from the engine folder
 engine/media/
+
+# reports the geometry auditor writes next to itself
+engine/motor/auditoria/
+engine/motor/media/
