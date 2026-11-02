@@ -2,9 +2,10 @@
 
 import { dimensions, FPS, LessonVideo, timeline, type Lesson, type Scene } from "@nemi/video";
 import { Player, type PlayerRef } from "@remotion/player";
+import { Play } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import React, { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { ENGINE } from "@/lib/engine";
+import React, { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { asset, ENGINE } from "@/lib/engine";
 import { studentCopy } from "@/lib/studioCopy";
 
 type Props = {
@@ -24,6 +25,24 @@ export function LessonPlayer({ lesson, interactive = false, captions = true, pla
   const { items, total } = useMemo(() => timeline(lesson), [lesson]);
   const { width, height } = dimensions(lesson);
   const inputProps = useMemo(() => ({ lesson, assetBase: ENGINE, captions, interactive }), [lesson, captions, interactive]);
+  // Students open the link on the first frame, before the opening picture fades in: show it as a cover instead
+  const cover = lesson.scenes.find((s) => s.assets.image)?.assets.image;
+  const poster = useCallback(
+    () => (
+      <div className="absolute inset-0 grid place-items-center bg-[#0b0a16]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {cover && <img src={asset(cover)} alt="" className="absolute inset-0 size-full object-cover opacity-80" />}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/10" />
+        <div className="relative flex flex-col items-center gap-3 px-4 text-center">
+          <span className="grid size-16 place-items-center rounded-full bg-violet text-[#120f22] shadow-xl shadow-black/50 sm:size-20">
+            <Play className="ml-1 size-7 fill-current sm:size-9" />
+          </span>
+          <p className="hidden text-2xl font-extrabold text-white drop-shadow sm:block">{lesson.title}</p>
+        </div>
+      </div>
+    ),
+    [cover, lesson.title],
+  );
 
   const quizzes = useMemo(
     () =>
@@ -89,6 +108,8 @@ export function LessonPlayer({ lesson, interactive = false, captions = true, pla
         style={{ width: "100%", aspectRatio: `${width} / ${height}`, maxHeight: lesson.format === "portrait" ? "78vh" : undefined }}
         controls
         initialFrame={interactive ? 0 : Math.min(45, total - 1)}
+        renderPoster={interactive ? poster : undefined}
+        showPosterWhenUnplayed={interactive}
         clickToPlay={!open}
         spaceKeyToPlayOrPause={!open}
         acknowledgeRemotionLicense

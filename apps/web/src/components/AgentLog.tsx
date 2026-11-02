@@ -28,7 +28,9 @@ const STEP: Record<string, { icon: typeof Brain; label: string; color: string }>
 export function AgentLog({ lesson }: { lesson: Lesson }) {
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    end.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    // Follow the newest step inside the panel only; on a phone the panel isn't scrollable and the page must not jump
+    const box = end.current?.closest<HTMLElement>(".overflow-y-auto");
+    if (box && box.scrollHeight > box.clientHeight) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
   }, [lesson.events.length]);
   return (
     <div className="space-y-1.5">
