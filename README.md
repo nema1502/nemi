@@ -18,6 +18,7 @@
   <img src="https://img.shields.io/badge/KaTeX-math-329894?style=flat-square" alt="KaTeX">
   <img src="https://img.shields.io/badge/Next.js_16-studio-000000?style=flat-square" alt="Next.js">
   <img src="https://img.shields.io/badge/FastAPI-engine-009688?style=flat-square" alt="FastAPI">
+  <a href="https://github.com/nema1502/nemi/actions/workflows/ci.yml"><img src="https://github.com/nema1502/nemi/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
 <p align="center">
@@ -134,6 +135,13 @@ cd ..
 
 pnpm dev:engine                   # http://localhost:8000
 pnpm dev:web                      # http://localhost:3000
+```
+
+Tests run on every push (engine, video timing and the web build):
+
+```bash
+cd engine && .venv/Scripts/python -m pytest -q
+pnpm --filter @nemi/video test
 ```
 
 Make a lesson from the terminal, or open the composition in Remotion Studio:

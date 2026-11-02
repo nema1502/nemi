@@ -1,0 +1,9 @@
+# What the unit tests need (no Manim, no LaTeX): pip install -r requirements-dev.txt
+pytest>=8
+pydantic>=2.9
+openai==3.42.1
+httpx>=0.28
+meta-sam-parser==0.1.0
+python-dotenv>=1.0
+edge-tts==7.3.1
+Pillow>=10.0

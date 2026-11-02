@@ -23,7 +23,7 @@ from pydantic import BaseModel, ValidationError
 
 from . import config
 
-client = AsyncOpenAI(base_url=config.META_BASE_URL, api_key=config.MODEL_API_KEY,
+client = AsyncOpenAI(base_url=config.META_BASE_URL, api_key=config.MODEL_API_KEY or "not-set",
                      timeout=600, max_retries=3)
 
 T = TypeVar("T", bound=BaseModel)
