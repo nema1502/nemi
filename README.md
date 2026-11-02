@@ -71,7 +71,8 @@ and hands the teacher a live editor before anything reaches the class.
 <p align="center">
   <img src="docs/media/review.jpg" alt="Muse Spark's review of the finished video, with notes pinned to the minute" width="720"><br>
   <sub><b>Muse Spark watches the finished MP4</b>, picture and sound, like a teacher before class: a score, what works,
-  and notes pinned to the minute. Click a note and the player jumps there.</sub>
+  and notes pinned to the minute. Then it can <b>fix its own notes</b>: it rewrites the scenes they point to, renders again
+  and watches the new version. Here the English example went from 8 to 9.</sub>
 </p>
 
 The volcano lesson above was generated from one line, *"Las partes de un volcán y por qué entra en erupción, 5to de primaria, Bolivia"*,
@@ -90,6 +91,7 @@ Each step is a Meta model doing what it is good at, and most steps are checked b
 | **Animate** | Muse Spark writing Manim | Write the scene, dry-run it through a geometry auditor (text off-frame, overlaps, floating connectors), send errors back, render, look at the rendered frames, and repair once more if something is visibly wrong. |
 | **Teacher's voice** | Muse Voice Transcribe | Re-record any scene in your own voice from the browser. The transcript, biased with the lesson's key terms, becomes the captions. |
 | **Watch the result** | Muse Spark 1.3, video understanding | After export the MP4 goes to the Files API and Muse Spark watches it with sound: a score and notes pinned to the minute. Its first reviews said 5 seconds of quiz time was too short for 10-year-olds, so Nemi now gives 8. |
+| **Fix its own notes** | Muse Spark 1.3, then Muse Image and SAM 3.1 again | One click closes the loop: each note's minute is mapped to its scene, Muse Spark rewrites only what the notes ask for (narration, on-screen lines, or the picture when it contradicts the voice), changed scenes are re-voiced and redrawn, the MP4 is rendered again and Muse Spark watches it again. Every score is kept. In testing: 8 to 9 and 7 to 8. |
 
 Default narration uses neural TTS with Latin American voices (including Bolivian), since Meta Model API doesn't offer speech
 synthesis. Word timings drive the karaoke captions and the diagram highlights.
@@ -141,7 +143,7 @@ Judges: here is exactly what is new and what isn't.
   Imported unchanged in the first commit, with the source commit hash.
 - **New, built from October 26 to November 4, 2026: everything else.** The lesson agent and its review loop, every Meta Model API integration,
   the Muse Spark and SAM 3.1 diagram pipeline, the self-repairing Manim loop, teacher voice transcription, the video review by
-  Muse Spark, one art style per lesson, deep mode with Muse Wonder, the Remotion composition and all its scenes, Nemi for events,
+  Muse Spark and its self-fixing loop, one art style per lesson, deep mode with Muse Wonder, the Remotion composition and all its scenes, Nemi for events,
   the engine API, the web studio and the deployment on Modal and Vercel.
 
 ## Run it locally
