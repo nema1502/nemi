@@ -63,6 +63,11 @@ export function Landing() {
             </div>
           ))}
         </div>
+        <figure className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-2xl border border-line bg-panel/70">
+          <video key={lang} src={`/tour/walkthrough-${lang}.mp4`} poster={`/tour/walkthrough-${lang}.jpg`}
+            className="block aspect-video w-full" autoPlay muted loop playsInline controls preload="metadata" />
+          <figcaption className="px-4 py-3 text-sm text-muted">{t.how.video}</figcaption>
+        </figure>
       </section>
 
       <section id="create" className="mx-auto grid max-w-6xl scroll-mt-20 items-start gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.05fr]">

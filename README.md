@@ -52,6 +52,13 @@ and hands the teacher a live editor before anything reaches the class.
 ## See it
 
 <p align="center">
+  <a href="https://nemi-eight.vercel.app/tour/walkthrough-en.mp4"><img src="docs/media/tour.jpg" alt="The 45-second tour of Nemi" width="720"></a><br>
+  <sub><b>The whole product in 45 seconds</b>, recorded on the live site: a topic, the lesson, editing, Muse Spark's review,
+  a student answering and the class results. <a href="https://nemi-eight.vercel.app/tour/walkthrough-en.mp4">Watch it</a>,
+  or <a href="https://nemi-eight.vercel.app/tour/walkthrough-es.mp4">en español</a>.</sub>
+</p>
+
+<p align="center">
   <img src="docs/media/diagram.gif" alt="A volcano diagram whose parts light up as the narrator names them" width="720"><br>
   <sub><b>Muse Image</b> draws the volcano without any text, <b>Muse Spark</b> finds each part and <b>SAM 3.1</b> cuts it out to the pixel.
   Each part lights up the moment the narrator says its name, with a label spelled right in the lesson's language.</sub>

@@ -65,6 +65,7 @@ export const copy = {
         ["Nemi makes the lesson", "It plans, reviews, illustrates, animates and narrates a short lesson with quiz pauses. You watch it happen."],
         ["You approve and share", "Edit any scene in the live preview, then send the student link or download the video for your own platform."],
       ],
+      video: "The whole tour in 45 seconds, recorded on this site: from a topic to the class results.",
     },
     make: {
       title: "Make one now",
@@ -147,6 +148,7 @@ export const copy = {
         ["Nemi arma la clase", "Planifica, revisa, ilustra, anima y narra una clase corta con pausas de preguntas. Lo ves pasar en vivo."],
         ["Tú apruebas y compartes", "Edita cualquier escena en la vista previa y después envía el link a tus estudiantes o descarga el video para tu plataforma."],
       ],
+      video: "Todo el recorrido en 45 segundos, grabado en este mismo sitio: del tema a los resultados de la clase.",
     },
     make: {
       title: "Haz una ahora",
