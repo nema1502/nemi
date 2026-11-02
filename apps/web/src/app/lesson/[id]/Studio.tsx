@@ -10,6 +10,7 @@ import { AgentLog, AgentStage } from "@/components/AgentLog";
 import { LessonPlayer } from "@/components/LessonPlayer";
 import { Logo } from "@/components/Logo";
 import { KIND, SceneEditor } from "@/components/SceneEditor";
+import { ClassResultsCard } from "@/components/ClassResultsCard";
 import { VideoReviewCard } from "@/components/VideoReviewCard";
 import { api, asset, busy, isDemo, useLessonLive } from "@/lib/engine";
 
@@ -104,6 +105,7 @@ export function Studio() {
             onWatchAgain={demo ? undefined : async () => { await api.watch(lesson.id); }}
             onImprove={demo ? undefined : async () => { await api.improve(lesson.id); }}
           />
+          <ClassResultsCard lesson={lesson} onReteach={demo ? undefined : async () => { await api.reteach(lesson.id); }} />
           {lesson.objectives.length > 0 && (
             <div className="mt-4 rounded-xl border border-line bg-panel/60 p-4 text-sm">
               <p className="label">Learning objectives</p>

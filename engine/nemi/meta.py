@@ -108,7 +108,7 @@ async def respell(texts: list[str], language: str) -> list[str]:
     if not texts:
         return texts
     ask = (f"Fix only spelling and missing accents in these {language} texts. Do not change wording, order or "
-           "punctuation, and keep regional words as written (Latin American 'video' stays 'video'). Return only a "
+           "punctuation (except adding the opening question and exclamation marks Spanish needs), and keep regional words as written (Latin American 'video' stays 'video'). Return only a "
            "JSON array of strings with the same length and order.\n"
            + json.dumps(texts, ensure_ascii=False))
     try:

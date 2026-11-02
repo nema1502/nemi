@@ -82,7 +82,7 @@ export const copy = {
       sub: "Teach with it in class, send it home with a link, or put it on the platform your school already uses.",
       items: [
         ["Nemi Studio", "Available", "Topic or PDF in, lesson out. Edit any scene, switch the look, record a line in your own voice and export."],
-        ["Nemi Classroom", "Beta", "One link per lesson. Students watch on any phone, the video stops at each quiz and waits for their answer. Class results for the teacher come next."],
+        ["Nemi Classroom", "Beta", "One link per lesson. Students watch on any phone and the video stops at each quiz for their answer. The teacher sees every answer, and Muse Spark suggests what to reteach tomorrow."],
         ["Your own platform", "MP4 available", "Download the video for the projector, WhatsApp or YouTube. Packages for Google Classroom, Moodle and other LMS are on the way."],
       ],
       student: "See what a student gets: the example lesson stops at its quiz and waits for an answer.",
@@ -164,7 +164,7 @@ export const copy = {
       sub: "Úsala en el aula, mándala a casa con un link o súbela a la plataforma que ya usa tu colegio.",
       items: [
         ["Nemi Studio", "Disponible", "Tema o PDF de entrada, clase de salida. Edita cualquier escena, cambia el estilo, graba una frase con tu voz y exporta."],
-        ["Nemi Classroom", "Beta", "Un link por clase. Tus estudiantes la ven en cualquier celular, el video se detiene en cada pregunta y espera su respuesta. Pronto, los resultados de la clase para el docente."],
+        ["Nemi Classroom", "Beta", "Un link por clase. Tus estudiantes la ven en cualquier celular y el video se detiene en cada pregunta para que respondan. Tú ves cada respuesta, y Muse Spark te sugiere qué reforzar mañana."],
         ["Tu propia plataforma", "MP4 disponible", "Descarga el video para el proyector, WhatsApp o YouTube. Pronto, paquetes para Google Classroom, Moodle y otros LMS."],
       ],
       student: "Mira lo que recibe un estudiante: la clase de ejemplo se detiene en su pregunta y espera la respuesta.",

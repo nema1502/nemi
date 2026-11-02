@@ -73,6 +73,9 @@ export type Check = { question: string; verdict: "yes" | "no" | "doubtful"; reas
 export type VideoNote = { time: string; issue: string; fix: string; severity: "minor" | "major" };
 export type VideoReview = { score: number; summary: string; strengths: string[]; notes: VideoNote[] };
 
+export type Answer = { student: string; scene_id: string; picked: number; correct: boolean; t: number };
+export type ClassInsight = { summary: string; reteach: string[]; warmup_question: string };
+
 export type LessonEvent = { t: number; step: string; message: string; level: "info" | "ok" | "warn" | "error" };
 
 export type Lesson = {
@@ -98,6 +101,8 @@ export type Lesson = {
   video: string | null;
   video_review: VideoReview | null;
   review_scores: number[];
+  answers: Answer[];
+  class_insight: ClassInsight | null;
   render_progress: number | null;
   error: string | null;
 };

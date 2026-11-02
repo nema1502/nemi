@@ -157,6 +157,20 @@ class VideoReview(BaseModel):
     notes: list[VideoNote]
 
 
+class Answer(BaseModel):
+    student: str
+    scene_id: str
+    picked: int
+    correct: bool
+    t: float
+
+
+class ClassInsight(BaseModel):
+    summary: str = Field(description="two sentences on how the class did")
+    reteach: list[str] = Field(description="up to 3 concrete things to go over again, most important first")
+    warmup_question: str = Field(description="one question to open tomorrow's class")
+
+
 class Event(BaseModel):
     t: float
     step: str
@@ -193,6 +207,8 @@ class Lesson(BaseModel):
     video: str | None = None
     video_review: VideoReview | None = None
     review_scores: list[int] = []  # every score Muse Spark gave, oldest first
+    answers: list[Answer] = []  # quiz answers from the student link
+    class_insight: ClassInsight | None = None
     render_progress: float | None = None
     error: str | None = None
 

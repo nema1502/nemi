@@ -63,7 +63,7 @@ and hands the teacher a live editor before anything reaches the class.
     <td width="50%"><img src="docs/media/manim.jpg" alt="Manim scene"><br><sub><b>Manim.</b> Written by Muse Spark, checked by a geometry auditor, repaired, rendered, then checked again by looking at the frames.</sub></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/media/quiz.jpg" alt="Quiz scene"><br><sub><b>Quiz pauses.</b> On the student link the video stops and waits for an answer, then explains it.</sub></td>
+    <td width="50%"><img src="docs/media/quiz.jpg" alt="Quiz scene"><br><sub><b>Quiz pauses.</b> On the student link the video stops and waits for an answer, then explains it. The teacher gets every answer, and Muse Spark suggests what to reteach.</sub></td>
     <td width="50%"><img src="docs/media/studio.jpg" alt="Teacher studio"><br><sub><b>Teacher studio.</b> A lesson made from a PDF chapter: live preview, the agent's work step by step, and Muse Spark's review of the finished video.</sub></td>
   </tr>
 </table>
@@ -89,6 +89,7 @@ Each step is a Meta model doing what it is good at, and most steps are checked b
 | **Illustrate** | Muse Image | The opening picture is drawn first, and every other scene is drawn with Muse Image's edit endpoint using it as the reference, so palette, line work and characters stay the same across the lesson. **No text inside images**: image models garble letters, so labels are added later as real text. |
 | **Find the parts** | Muse Spark (vision), then SAM 3.1 | SAM alone couldn't find *"magma chamber"*: it's a concept, not a shape. So Muse Spark boxes each part roughly, and SAM 3.1 turns each box into a pixel-exact mask (4 of 4 parts, 0.79 to 0.91 confidence). |
 | **Animate** | Muse Spark writing Manim | Write the scene, dry-run it through a geometry auditor (text off-frame, overlaps, floating connectors), send errors back, render, look at the rendered frames, and repair once more if something is visibly wrong. |
+| **Class results** | Muse Spark 1.3 | Students answer the quiz pauses on the student link; the teacher sees each answer and the most common wrong option, and Muse Spark reads the results and suggests what to reteach tomorrow, with a question to open the next class. |
 | **Teacher's voice** | Muse Voice Transcribe | Re-record any scene in your own voice from the browser. The transcript, biased with the lesson's key terms, becomes the captions. |
 | **Watch the result** | Muse Spark 1.3, video understanding | After export the MP4 goes to the Files API and Muse Spark watches it with sound: a score and notes pinned to the minute. Its first reviews said 5 seconds of quiz time was too short for 10-year-olds, so Nemi now gives 8. |
 | **Fix its own notes** | Muse Spark 1.3, then Muse Image and SAM 3.1 again | One click closes the loop: each note's minute is mapped to its scene, Muse Spark rewrites only what the notes ask for (narration, on-screen lines, or the picture when it contradicts the voice), changed scenes are re-voiced and redrawn, the MP4 is rendered again and Muse Spark watches it again. Every score is kept. In testing: 8 to 9 and 7 to 8. |
@@ -143,7 +144,7 @@ Judges: here is exactly what is new and what isn't.
   Imported unchanged in the first commit, with the source commit hash.
 - **New, built from October 26 to November 4, 2026: everything else.** The lesson agent and its review loop, every Meta Model API integration,
   the Muse Spark and SAM 3.1 diagram pipeline, the self-repairing Manim loop, teacher voice transcription, the video review by
-  Muse Spark and its self-fixing loop, one art style per lesson, deep mode with Muse Wonder, the Remotion composition and all its scenes, Nemi for events,
+  Muse Spark and its self-fixing loop, class results with reteach suggestions, one art style per lesson, deep mode with Muse Wonder, the Remotion composition and all its scenes, Nemi for events,
   the engine API, the web studio and the deployment on Modal and Vercel.
 
 ## Run it locally

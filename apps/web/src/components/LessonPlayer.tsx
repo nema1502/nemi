@@ -13,10 +13,11 @@ type Props = {
   playerRef?: RefObject<PlayerRef | null>;
   onFrame?: (frame: number) => void;
   onScore?: (score: { right: number; total: number }) => void;
+  onAnswer?: (sceneId: string, picked: number) => void;
 };
 
 /** The Remotion composition, live in the browser. In student mode it stops at every quiz. */
-export function LessonPlayer({ lesson, interactive = false, captions = true, playerRef, onFrame, onScore }: Props) {
+export function LessonPlayer({ lesson, interactive = false, captions = true, playerRef, onFrame, onScore, onAnswer }: Props) {
   const ownRef = useRef<PlayerRef>(null);
   const ref = playerRef ?? ownRef;
   const { items, total } = useMemo(() => timeline(lesson), [lesson]);
@@ -60,6 +61,7 @@ export function LessonPlayer({ lesson, interactive = false, captions = true, pla
   const answer = (i: number) => {
     if (!open || picked !== null) return;
     setPicked(i);
+    onAnswer?.(open.scene.id, i);
     const next = { ...answers, [open.scene.id]: i };
     setAnswers(next);
     onScore?.({

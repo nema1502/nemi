@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import config, improve, pipeline, render, store, voice
+from . import classroom, config, improve, pipeline, render, store, voice
 from . import events as ev
 from .schema import THEMES, DiagramPartSpec, Lesson, QuizSpec, Scene
 from .store import Editor, folder, log, rel
@@ -290,6 +290,34 @@ async def improve_lesson(lesson_id: str):
     if lesson.status == "rendering":
         raise HTTPException(409, "Already working on it")
     _spawn(improve.improve(lesson_id))
+    return {"ok": True}
+
+
+class AnswerIn(BaseModel):
+    student: str = ""
+    scene_id: str
+    picked: int
+
+
+@app.post("/api/lessons/{lesson_id}/answers")
+async def post_answer(lesson_id: str, answer: AnswerIn):
+    """A student answered a quiz on the student link."""
+    _get(lesson_id)
+    try:
+        a = await classroom.record(lesson_id, answer.student, answer.scene_id, answer.picked)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return {"correct": a.correct}
+
+
+@app.post("/api/lessons/{lesson_id}/reteach")
+async def reteach(lesson_id: str, request: Request):
+    """Muse Spark reads the class results and suggests what to go over again."""
+    lesson = _get(lesson_id)
+    if not lesson.answers:
+        raise HTTPException(400, "No answers yet")
+    _limit(request)
+    _spawn(classroom.insight(lesson_id))
     return {"ok": True}
 
 @app.delete("/api/lessons/{lesson_id}")
