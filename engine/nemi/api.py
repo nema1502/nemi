@@ -23,6 +23,31 @@ app.mount("/event-files", StaticFiles(directory=ev.EVENTS), name="event-files")
 
 _tasks: set[asyncio.Task] = set()
 
+INTERRUPTED = "The engine restarted while this was being made. Please create it again."
+
+
+@app.on_event("startup")
+def _mark_interrupted() -> None:
+    """Jobs run inside this process; anything still marked as in progress at startup was cut off."""
+    for lesson in store.all_lessons():
+        if lesson.status in ("queued", "reading", "planning", "reviewing", "producing"):
+            lesson.status, lesson.error = "error", INTERRUPTED
+            store.save(lesson)
+        elif lesson.status == "rendering":
+            lesson.status, lesson.render_progress = "ready", None
+            store.save(lesson)
+    for path in ev.EVENTS.glob("*/kit.json"):
+        try:
+            kit = ev.EventKit.model_validate_json(path.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        if kit.status in ("queued", "designing", "drawing"):
+            kit.status, kit.error = "error", INTERRUPTED
+            ev.save(kit)
+        elif kit.status == "exporting":
+            kit.status = "ready"
+            ev.save(kit)
+
 
 def _spawn(coro) -> None:
     task = asyncio.create_task(coro)
