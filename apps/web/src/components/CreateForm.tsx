@@ -5,22 +5,29 @@ import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api, type Options } from "@/lib/engine";
+import { useCopy, useLang } from "@/lib/i18n";
 
 const LANGS = ["Spanish", "English", "Portuguese"];
-const LENGTHS = [
-  { id: "short", label: "Short", hint: "~1 min" },
-  { id: "standard", label: "Standard", hint: "~2 min" },
-  { id: "long", label: "Long", hint: "~3 min" },
-];
-const EXAMPLES = [
-  { topic: "Las partes de un volcán y por qué entra en erupción", audience: "5to de primaria, 10-11 años, Bolivia" },
-  { topic: "Fracciones equivalentes con ejemplos de comida", audience: "4to de primaria, 9-10 años" },
-  { topic: "Cómo hacen su alimento las plantas: la fotosíntesis", audience: "1ro de secundaria, 12-13 años" },
-];
+// Shown even when the engine is offline
+const FALLBACK: Options = {
+  voices: {
+    Spanish: ["es-BO-SofiaNeural", "es-BO-MarceloNeural", "es-MX-DaliaNeural", "es-PE-CamilaNeural", "es-CO-SalomeNeural", "es-AR-TomasNeural"],
+    English: ["en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural", "en-US-EmmaNeural", "en-US-BrianNeural"],
+    Portuguese: ["pt-BR-FranciscaNeural", "pt-BR-AntonioNeural"],
+  },
+  themes: {
+    night: { name: "night", bg: "#0C0A1A", surface: "#17142B", ink: "#F5F7FF", muted: "#9AA3B8", accent: "#A78BFA", accent2: "#5EE7DF", accent3: "#FFC94D", good: "#3DDC84", bad: "#FF5C5C" },
+    chalk: { name: "chalk", bg: "#14261E", surface: "#1C3329", ink: "#F3F1E7", muted: "#A9B8AE", accent: "#FFD166", accent2: "#7FD1FF", accent3: "#FF9AA2", good: "#9BE564", bad: "#FF6B6B" },
+    paper: { name: "paper", bg: "#FBF7EF", surface: "#FFFFFF", ink: "#1E1B2E", muted: "#6B6880", accent: "#5B4BDB", accent2: "#0FA3A3", accent3: "#E07A1F", good: "#1F9D55", bad: "#D64545" },
+  },
+};
 
 export function CreateForm() {
   const router = useRouter();
-  const [opts, setOpts] = useState<Options | null>(null);
+  const t = useCopy().form;
+  const { lang } = useLang();
+  const [opts, setOpts] = useState<Options>(FALLBACK);
+  const [offline, setOffline] = useState(false);
   const [mode, setMode] = useState<"topic" | "pdf">("topic");
   const [topic, setTopic] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -34,12 +41,18 @@ export function CreateForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.options().then(setOpts).catch(() => setError("The lesson engine is offline right now. You can still open the example lesson below."));
+    api.options().then(setOpts).catch(() => setOffline(true));
   }, []);
+
+  // The lesson defaults to the language the page is in
+  useEffect(() => {
+    setLanguage(lang === "es" ? "Spanish" : "English");
+    setVoice(lang === "es" ? "es-BO-SofiaNeural" : "en-US-AvaMultilingualNeural");
+  }, [lang]);
 
   const pickLanguage = (l: string) => {
     setLanguage(l);
-    const first = opts?.voices[l]?.[0];
+    const first = opts.voices[l]?.[0];
     if (first) setVoice(first);
   };
 
@@ -72,18 +85,18 @@ export function CreateForm() {
         {(["topic", "pdf"] as const).map((m) => (
           <button key={m} onClick={() => setMode(m)} className={`relative rounded-lg px-4 py-1.5 text-sm font-semibold transition ${mode === m ? "text-[#120f22]" : "text-muted hover:text-ink"}`}>
             {mode === m && <motion.span layoutId="mode" className="absolute inset-0 rounded-lg bg-violet" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />}
-            <span className="relative">{m === "topic" ? "Topic" : "PDF chapter"}</span>
+            <span className="relative">{m === "topic" ? t.topic : t.pdf}</span>
           </button>
         ))}
       </div>
 
       {mode === "topic" ? (
         <div>
-          <textarea className="field min-h-24 resize-none text-base" placeholder="What should your students learn? e.g. Las partes de un volcán" value={topic} onChange={(e) => setTopic(e.target.value)} />
+          <textarea className="field min-h-24 resize-none text-base" placeholder={t.topicPh} value={topic} onChange={(e) => setTopic(e.target.value)} />
           <div className="mt-2 flex flex-wrap gap-2">
-            {EXAMPLES.map((ex) => (
-              <button key={ex.topic} onClick={() => { setTopic(ex.topic); setAudience(ex.audience); }} className="rounded-full border border-line px-3 py-1 text-xs text-muted transition hover:border-violet/60 hover:text-ink">
-                {ex.topic}
+            {t.examples.map(([exTopic, exAudience]) => (
+              <button key={exTopic} onClick={() => { setTopic(exTopic); setAudience(exAudience); }} className="rounded-full border border-line px-3 py-1 text-xs text-muted transition hover:border-violet/60 hover:text-ink">
+                {exTopic}
               </button>
             ))}
           </div>
@@ -98,50 +111,50 @@ export function CreateForm() {
             ) : (
               <>
                 <Upload className="size-6 text-violet" />
-                <span className="text-sm font-semibold">Drop a textbook chapter (PDF)</span>
-                <span className="text-xs text-muted">Muse Spark reads text and figures from up to 50 pages</span>
+                <span className="text-sm font-semibold">{t.drop}</span>
+                <span className="text-xs text-muted">{t.dropHint}</span>
               </>
             )}
             <input type="file" accept="application/pdf" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           </label>
-          <input className="field mt-3" placeholder="Optional note: which part to focus on" value={topic} onChange={(e) => setTopic(e.target.value)} />
+          <input className="field mt-3" placeholder={t.notePh} value={topic} onChange={(e) => setTopic(e.target.value)} />
         </div>
       )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <span className="label">Students</span>
-          <input className="field" placeholder="e.g. 5th grade, 10 to 11 years old, rural school in Bolivia" value={audience} onChange={(e) => setAudience(e.target.value)} />
+          <span className="label">{t.students}</span>
+          <input className="field" placeholder={t.studentsPh} value={audience} onChange={(e) => setAudience(e.target.value)} />
         </div>
         <div>
-          <span className="label">Language</span>
+          <span className="label">{t.language}</span>
           <select className="field" value={language} onChange={(e) => pickLanguage(e.target.value)}>
-            {LANGS.map((l) => <option key={l}>{l}</option>)}
+            {LANGS.map((l) => <option key={l} value={l}>{t.langNames[l]}</option>)}
           </select>
         </div>
         <div>
-          <span className="label">Voice</span>
+          <span className="label">{t.voice}</span>
           <select className="field" value={voice} onChange={(e) => setVoice(e.target.value)}>
-            {(opts?.voices[language] ?? [voice]).map((v) => (
+            {(opts.voices[language] ?? [voice]).map((v) => (
               <option key={v} value={v}>{v.replace(/Neural$/, "").replace(/^(\w\w-\w\w)-(.*)$/, "$2 ($1)")}</option>
             ))}
           </select>
         </div>
         <div>
-          <span className="label">Length</span>
+          <span className="label">{t.length}</span>
           <div className="grid grid-cols-3 gap-2">
-            {LENGTHS.map((l) => (
-              <button key={l.id} onClick={() => setLength(l.id)} className={`rounded-xl border px-2 py-2 text-sm transition ${length === l.id ? "border-violet bg-violet/15" : "border-line bg-panel-2 hover:border-violet/50"}`}>
-                <div className="font-semibold">{l.label}</div>
-                <div className="text-[11px] text-muted">{l.hint}</div>
+            {t.lengths.map(([id, label, hint]) => (
+              <button key={id} onClick={() => setLength(id)} className={`rounded-xl border px-2 py-2 text-sm transition ${length === id ? "border-violet bg-violet/15" : "border-line bg-panel-2 hover:border-violet/50"}`}>
+                <div className="font-semibold">{label}</div>
+                <div className="text-[11px] text-muted">{hint}</div>
               </button>
             ))}
           </div>
         </div>
         <div>
-          <span className="label">Format</span>
+          <span className="label">{t.format}</span>
           <div className="grid grid-cols-2 gap-2">
-            {([["landscape", Monitor, "Classroom 16:9"], ["portrait", Smartphone, "Phone 9:16"]] as const).map(([id, Icon, label]) => (
+            {([["landscape", Monitor, t.landscape], ["portrait", Smartphone, t.portrait]] as const).map(([id, Icon, label]) => (
               <button key={id} onClick={() => setFormat(id)} className={`flex items-center justify-center gap-2 rounded-xl border px-2 py-3 text-sm font-semibold transition ${format === id ? "border-violet bg-violet/15" : "border-line bg-panel-2 hover:border-violet/50"}`}>
                 <Icon className="size-4" />{label}
               </button>
@@ -149,25 +162,25 @@ export function CreateForm() {
           </div>
         </div>
         <div className="sm:col-span-2">
-          <span className="label">Look</span>
+          <span className="label">{t.look}</span>
           <div className="flex gap-2">
-            {Object.values(opts?.themes ?? {}).map((t) => (
-              <button key={t.name} onClick={() => setTheme(t.name)} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm capitalize transition ${theme === t.name ? "border-violet bg-violet/15" : "border-line bg-panel-2 hover:border-violet/50"}`}>
-                <span className="flex size-5 overflow-hidden rounded-full border border-white/20" style={{ background: t.bg }}>
-                  <span className="m-auto size-2 rounded-full" style={{ background: t.accent }} />
+            {Object.values(opts.themes).map((th) => (
+              <button key={th.name} onClick={() => setTheme(th.name)} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm capitalize transition ${theme === th.name ? "border-violet bg-violet/15" : "border-line bg-panel-2 hover:border-violet/50"}`}>
+                <span className="flex size-5 overflow-hidden rounded-full border border-white/20" style={{ background: th.bg }}>
+                  <span className="m-auto size-2 rounded-full" style={{ background: th.accent }} />
                 </span>
-                {t.name}
+                {th.name}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {error && <p className="mt-4 rounded-xl border border-red/40 bg-red/10 px-3 py-2 text-sm text-red">{error}</p>}
+      {(error || offline) && <p className="mt-4 rounded-xl border border-red/40 bg-red/10 px-3 py-2 text-sm text-red">{error ?? t.offline}</p>}
 
       <button onClick={submit} disabled={!ready || busy} className="btn-primary mt-6 w-full py-3.5 text-base">
         {busy ? <Loader2 className="size-5 animate-spin" /> : <Sparkles className="size-5" />}
-        {busy ? "Starting the agent…" : "Create lesson"}
+        {busy ? t.starting : t.create}
       </button>
     </div>
   );

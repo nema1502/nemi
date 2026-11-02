@@ -10,7 +10,7 @@ import { AgentLog, AgentStage } from "@/components/AgentLog";
 import { LessonPlayer } from "@/components/LessonPlayer";
 import { Logo } from "@/components/Logo";
 import { KIND, SceneEditor } from "@/components/SceneEditor";
-import { api, asset, busy, DEMO_ID, useLessonLive } from "@/lib/engine";
+import { api, asset, busy, isDemo, useLessonLive } from "@/lib/engine";
 
 const THEMES = ["night", "chalk", "paper"];
 
@@ -35,7 +35,7 @@ export function Studio() {
   }
 
   const patch = async (body: Parameters<typeof api.patch>[1]) => setLesson(await api.patch(lesson.id, body));
-  const demo = lesson.id === DEMO_ID;
+  const demo = isDemo(lesson.id);
   const working = !demo && busy(lesson);
   const share = () => {
     navigator.clipboard.writeText(`${window.location.origin}/watch/${lesson.id}`);

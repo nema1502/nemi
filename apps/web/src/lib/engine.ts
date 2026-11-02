@@ -58,17 +58,8 @@ export const api = {
 export const asset = (p: string | null | undefined) => (!p ? "" : p.startsWith("/") ? p : `${ENGINE}/${p}`);
 
 /** A finished lesson shipped with the site, so the product can be seen even with the engine offline. */
-export const DEMO_ID = "demo";
-export const DEMO_CARD: LessonCard = {
-  id: DEMO_ID,
-  title: "Por qué una montaña explota",
-  status: "ready",
-  created_at: 1793579299,
-  format: "landscape",
-  theme: "night",
-  scenes: 6,
-  cover: "/demo/s1-1ca3-68038d91.jpg",
-};
+export const isDemo = (id: string) => id === "demo" || id.startsWith("demo-");
+
 
 /** Polls the lesson while the agent is working; slows down once everything is produced. */
 export function useLessonLive(id: string | undefined) {
@@ -79,7 +70,7 @@ export function useLessonLive(id: string | undefined) {
   const refresh = useCallback(async () => {
     if (!id) return;
     try {
-      const l: Lesson = id === DEMO_ID ? await (await fetch("/demo/lesson.json")).json() : await api.get(id);
+      const l: Lesson = isDemo(id) ? await (await fetch(`/${id}/lesson.json`)).json() : await api.get(id);
       const sig = JSON.stringify(l);
       if (sig !== last.current) {
         last.current = sig;
@@ -98,7 +89,7 @@ export function useLessonLive(id: string | undefined) {
       await refresh();
       timer = setTimeout(tick, busy(JSON.parse(last.current || "null")) ? 1500 : 5000);
     };
-    if (id !== DEMO_ID) timer = setTimeout(tick, 1500);
+    if (id && !isDemo(id)) timer = setTimeout(tick, 1500);
     return () => clearTimeout(timer);
   }, [refresh, id]);
 
