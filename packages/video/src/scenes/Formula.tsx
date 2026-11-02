@@ -1,6 +1,7 @@
 import katex from "katex";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AbsoluteFill, continueRender, delayRender, spring, useCurrentFrame } from "remotion";
+import { mathOutOfText } from "../latex";
 import { FPS, LEAD } from "../timing";
 import { alpha, SceneTitle, useLayout, useLesson } from "../ui";
 import type { SceneProps } from "./props";
@@ -11,13 +12,24 @@ export const Formula: React.FC<SceneProps> = ({ scene, timing }) => {
   const { theme } = useLesson();
   const { portrait, pad, top, bottom } = useLayout();
   const [handle] = useState(() => delayRender("KaTeX fonts"));
+  const steps = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<number[]>([]);
   useEffect(() => {
-    // KaTeX fonts only start loading once formulas are in the DOM
-    document.fonts.ready.then(() => continueRender(handle));
+    // KaTeX fonts only start loading once formulas are in the DOM. Once they are in, a step wider than the
+    // frame gets a smaller font instead of running off both edges.
+    document.fonts.ready.then(() => {
+      const room = steps.current?.clientWidth ?? 0;
+      const items = [...(steps.current?.children ?? [])] as HTMLElement[];
+      setFit(items.map((el) => {
+        const w = (el.querySelector(".katex")?.scrollWidth ?? 0) + 84;
+        return room > 0 && w > room ? room / w : 1;
+      }));
+      continueRender(handle);
+    });
   }, [handle]);
 
   const html = useMemo(
-    () => scene.latex.map((l) => katex.renderToString(l, { throwOnError: false, displayMode: true, output: "html" })),
+    () => scene.latex.map((l) => katex.renderToString(mathOutOfText(l), { throwOnError: false, displayMode: true, output: "html" })),
     [scene.latex],
   );
   const n = scene.latex.length;
@@ -29,7 +41,7 @@ export const Formula: React.FC<SceneProps> = ({ scene, timing }) => {
   return (
     <AbsoluteFill style={{ padding: pad, paddingTop: top, paddingBottom: bottom, gap: portrait ? 60 : 40 }}>
       <SceneTitle text={scene.title} />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: portrait ? 36 : 24 }}>
+      <div ref={steps} style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: portrait ? 36 : 24 }}>
         {html.map((h, i) => {
           const s = spring({ frame: frame - times[i] * FPS, fps: FPS, config: { damping: 16 } });
           const now = i === current;
@@ -39,7 +51,7 @@ export const Formula: React.FC<SceneProps> = ({ scene, timing }) => {
               style={{
                 opacity: s * (now ? 1 : 0.42),
                 transform: `translateY(${(1 - s) * 30}px) scale(${now ? 1 : 0.86})`,
-                fontSize: portrait ? 64 : 76,
+                fontSize: (portrait ? 64 : 76) * (fit[i] ?? 1),
                 color: now ? theme.ink : theme.muted,
                 padding: "6px 40px",
                 borderRadius: 24,

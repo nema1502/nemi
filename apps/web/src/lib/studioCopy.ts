@@ -217,6 +217,7 @@ const LOG_ES: [RegExp, string][] = [
   [/^Animation ready: "(.+)" \((.+)\)$/, "Animación lista: \"$1\" ($2)"],
   [/^Rendering the MP4 with Remotion$/, "Renderizando el MP4 con Remotion"],
   [/^MP4 ready to download$/, "MP4 listo para descargar"],
+  [/^Rendering again after a hiccup$/, "Renderizando de nuevo después de un tropiezo"],
   [/^Muse Spark is watching the whole video, picture and sound$/, "Muse Spark está mirando todo el video, imagen y sonido"],
   [/^Video review failed: ([\s\S]*)$/, "Falló la revisión del video: $1"],
   [/^Muse Spark watched the video: (\d+)\/10, (\d+) notes$/, "Muse Spark miró el video: $1/10, $2 notas"],

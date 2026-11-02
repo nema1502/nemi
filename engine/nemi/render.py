@@ -16,9 +16,11 @@ def _run(props_file, out, on_progress) -> None:
     proc = subprocess.Popen(["node", "render.mjs", str(props_file), str(out)], cwd=config.VIDEO_PKG,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8",
                             errors="replace")
-    tail = []
+    tail, first = [], None
     for line in proc.stdout:
         line = line.strip()
+        if first is None and "Error" in line:
+            first = line[:300]
         if line.startswith("{"):
             try:
                 on_progress(json.loads(line).get("progress", 0))
@@ -27,7 +29,7 @@ def _run(props_file, out, on_progress) -> None:
                 pass
         tail = (tail + [line])[-30:]
     if proc.wait() != 0:
-        raise RuntimeError("Remotion render failed:\n" + "\n".join(tail))
+        raise RuntimeError(f"Remotion render failed: {first or 'see the log'}\n" + "\n".join(tail))
 
 
 async def render(lesson_id: str) -> None:
@@ -47,14 +49,20 @@ async def render(lesson_id: str) -> None:
                 asyncio.run_coroutine_threadsafe(_progress(lesson_id, p), loop)
 
         try:
-            await asyncio.to_thread(_run, props, out, on_progress)
+            # A frame fetch can time out while the machine is busy; one more try usually goes through
+            try:
+                await asyncio.to_thread(_run, props, out, on_progress)
+            except RuntimeError as hiccup:
+                print(hiccup)
+                await log(lesson_id, "render", "Rendering again after a hiccup", "warn")
+                await asyncio.to_thread(_run, props, out, on_progress)
             async with Editor(lesson_id) as l:
                 l.video, l.status, l.render_progress, l.video_review = rel(out), "ready", 1.0, None
             await log(lesson_id, "render", "MP4 ready to download", "ok")
         except Exception as e:
             async with Editor(lesson_id) as l:
                 l.status, l.render_progress = "ready", None
-            await log(lesson_id, "error", str(e)[-400:], "error")
+            await log(lesson_id, "error", str(e)[:700], "error")
             return
     await review(lesson_id)
 

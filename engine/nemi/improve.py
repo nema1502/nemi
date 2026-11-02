@@ -50,6 +50,7 @@ class SceneFix(BaseModel):
     narration: str | None
     points: list[str] | None
     image_prompt: str | None = Field(description="only when the picture contradicts the narration; no text in it")
+    latex: list[str] | None = Field(description="formula scenes only: the KaTeX steps, one short line each")
 
 
 class FixPlan(BaseModel):
@@ -59,8 +60,10 @@ class FixPlan(BaseModel):
 SYSTEM = """You are the director of a short lesson video. A teacher watched it and left notes pinned to minutes.
 Fix every note that the lesson's content can fix, and nothing else:
 - Each note's time tells you which scene it is about (scene time ranges are given).
-- You may change a scene's title, narration (what the voice says), points (short on-screen lines) or
-  image_prompt (never ask for text in the picture).
+- You may change a scene's title, narration (what the voice says), points (short on-screen lines),
+  image_prompt (never ask for text in the picture) or, in a formula scene, its latex steps.
+- Formula steps are KaTeX math: short lines that fit the screen, words inside \\text{...} and symbols
+  like \\rightarrow outside it. Split a long step into two.
 - When the picture and the voice disagree, change the image_prompt so the picture shows what the voice says,
   or change the narration to match the picture, whichever is simpler for the student.
 - When something confuses the audience (a misleading title, a loose metaphor), remove or replace it.
@@ -84,6 +87,7 @@ async def improve(lesson_id: str) -> None:
         scenes = "\n".join(
             f"Scene {i} [{s.id}] {s.kind}, {_mmss(a)} to {_mmss(b)}. Title: {s.title}. Voice: {s.narration}. "
             f"On screen: {' / '.join(s.points) or '-'}. Picture: {s.image_prompt or '-'}"
+            + (f". LaTeX steps: {' | '.join(s.latex)}" if s.kind == "formula" else "")
             for i, (s, a, b) in enumerate(ranges, 1))
         notes = "\n".join(f"- {n.time} ({n.severity}): {n.issue} Suggested fix: {n.fix}" for n in review.notes)
         plan = await meta.think_json(
@@ -108,6 +112,8 @@ async def improve(lesson_id: str) -> None:
                     revoice.append(s.id)
                 if f.points is not None and s.kind in ("concept", "image", "summary"):
                     s.points = clean_all([p for p in f.points if p.strip()][:4])
+                if f.latex and s.kind == "formula":
+                    s.latex = [x.strip() for x in f.latex if x.strip()][:4]
                 if f.image_prompt and s.kind in ("hook", "image", "diagram"):
                     s.image_prompt = clean(f.image_prompt)
                     s.assets.image = None
