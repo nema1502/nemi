@@ -89,7 +89,7 @@ export const copy = {
       studentCta: "Open the student link",
     },
     events: {
-      badge: "Coming soon",
+      badge: "Beta",
       title: "Nemi for events",
       sub: "Running a hackathon, a meetup or a community chapter? Bring your logos, your colors and the idea. Nemi drafts the whole launch kit in one style, no designer needed.",
       kit: ["A profile picture and an event cover sized for Luma", "A 9-post Instagram grid that forms one big picture", "Stories and WhatsApp statuses in your colors", "Ready-to-post copy for Instagram, X, LinkedIn and WhatsApp"],
@@ -171,7 +171,7 @@ export const copy = {
       studentCta: "Abrir el link de estudiante",
     },
     events: {
-      badge: "Muy pronto",
+      badge: "Beta",
       title: "Nemi para eventos",
       sub: "¿Organizas una hackathon, un meetup o un capítulo de comunidad? Trae tus logos, tus colores y la idea. Nemi prepara todo el kit de lanzamiento con un mismo estilo, sin necesidad de diseñador.",
       kit: ["Foto de perfil y portada con el tamaño de Luma", "Una grilla de 9 publicaciones de Instagram que forma una sola imagen", "Historias y estados de WhatsApp con tus colores", "Textos listos para Instagram, X, LinkedIn y WhatsApp"],

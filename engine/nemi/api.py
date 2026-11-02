@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import config, pipeline, render, store, voice
+from . import events as ev
 from .schema import THEMES, DiagramPartSpec, Lesson, QuizSpec, Scene
 from .store import Editor, folder, log, rel
 from .tts import VOICES
@@ -18,6 +19,7 @@ from .tts import VOICES
 app = FastAPI(title="Nemi engine")
 app.add_middleware(CORSMiddleware, allow_origins=config.CORS_ORIGINS + ["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/files", StaticFiles(directory=config.LESSONS), name="files")
+app.mount("/event-files", StaticFiles(directory=ev.EVENTS), name="event-files")
 
 _tasks: set[asyncio.Task] = set()
 
@@ -229,4 +231,73 @@ def delete_lesson(lesson_id: str):
     import shutil
     _get(lesson_id)
     shutil.rmtree(folder(lesson_id), ignore_errors=True)
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------- Nemi for events
+
+@app.post("/api/events")
+async def create_event(
+    name: str = Form(...),
+    date: str = Form(""),
+    place: str = Form(""),
+    description: str = Form(""),
+    community: str = Form(""),
+    language: str = Form("Spanish"),
+    logos: list[UploadFile] = File(default=[]),
+):
+    import io
+
+    from PIL import Image, UnidentifiedImageError
+
+    kit = ev.EventKit(name=name.strip(), date=date.strip(), place=place.strip(), description=description.strip(),
+                      community=community.strip(), language=language)
+    folder_ = ev.folder(kit.id)
+    folder_.mkdir(parents=True, exist_ok=True)
+    pngs = []
+    for i, f in enumerate(logos[:4]):
+        raw = await f.read()
+        if not raw:
+            continue
+        try:
+            img = Image.open(io.BytesIO(raw)).convert("RGBA")
+        except UnidentifiedImageError:
+            raise HTTPException(400, f"{f.filename}: use PNG, JPG or WebP logos")
+        img.thumbnail((1200, 1200))
+        path = folder_ / f"logo-{i}.png"
+        img.save(path)
+        kit.logos.append(ev.rel(path))
+        pngs.append(path.read_bytes())
+    ev.save(kit)
+    _spawn(ev.design(kit.id, pngs))
+    return kit
+
+
+@app.get("/api/events")
+def list_events():
+    kits = []
+    for p in ev.EVENTS.glob("*/kit.json"):
+        try:
+            k = ev.EventKit.model_validate_json(p.read_text(encoding="utf-8"))
+            kits.append({"id": k.id, "name": k.name, "status": k.status, "created_at": k.created_at, "key_visual": k.key_visual})
+        except ValueError:
+            continue
+    return sorted(kits, key=lambda k: -k["created_at"])
+
+
+@app.get("/api/events/{kit_id}")
+def get_event(kit_id: str):
+    if not ev.exists(kit_id):
+        raise HTTPException(404, "kit not found")
+    return ev.load(kit_id)
+
+
+@app.post("/api/events/{kit_id}/export")
+async def export_event(kit_id: str):
+    if not ev.exists(kit_id):
+        raise HTTPException(404, "kit not found")
+    kit = ev.load(kit_id)
+    if kit.status != "ready":
+        raise HTTPException(409, "The kit is still being made")
+    _spawn(ev.export(kit_id))
     return {"ok": True}

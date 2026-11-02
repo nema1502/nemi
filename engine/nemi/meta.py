@@ -170,6 +170,7 @@ async def _sam(image_png: bytes, text: str) -> list[dict]:
         b = rec.bounds
         found.append({
             "object_id": str(rec.object_id),
+            "raw": rec.mask,
             "path": decode_mask_to_svg_path(rec.mask),
             "mask_size": (rec.mask.width, rec.mask.height),
             "box": (b.left, b.top, b.right, b.bottom),

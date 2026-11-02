@@ -52,6 +52,24 @@ class _Locs(BaseModel):
     parts: list[_Loc]
 
 
+async def cut_out(png: bytes, size: tuple[int, int], description: str) -> dict | None:
+    """Muse Spark boxes one subject, SAM 3.1 turns the box into a mask; falls back to SAM's own concept search."""
+    w, h = size
+    locs = await meta.think_json(
+        _Locs, system=prompts.LOCATOR, effort="low",
+        content=[{"type": "input_text", "text": f"Parts (id: description):\n0: {description}"}, meta.image_part(png)],
+    )
+    loc = next((p for p in locs.parts if len(p.box) == 4 and p.box[2] > p.box[0] and p.box[3] > p.box[1]), None)
+    if loc:
+        box = (loc.box[0] * w // 1000, loc.box[1] * h // 1000, min(w, loc.box[2] * w // 1000), min(h, loc.box[3] * h // 1000))
+        point = (min(w - 1, loc.point[0] * w // 1000), min(h - 1, loc.point[1] * h // 1000)) if len(loc.point) == 2 else None
+        masks = await meta.segment_objects(png, size, [{"id": 0, "box": box, "point": point}])
+        if masks:
+            return next(iter(masks.values()))
+    found = await meta.segment(png, description)
+    return found[0] if found else None
+
+
 def _overlap(a, b) -> float:
     ix = max(0, min(a[2], b[2]) - max(a[0], b[0]))
     iy = max(0, min(a[3], b[3]) - max(a[1], b[1]))

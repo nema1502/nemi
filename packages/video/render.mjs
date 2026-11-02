@@ -1,12 +1,12 @@
-// node render.mjs <props.json> <out.mp4>
-// Bundles once (reused until src/ changes) and renders the Lesson composition,
-// printing {"progress": 0..1} lines for the engine.
+// node render.mjs <props.json> <out> [composition=Lesson] [video|still] [frame]
+// Bundles once (reused until src/ changes) and renders a composition, printing
+// {"progress": 0..1} lines for the engine.
 import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition } from "@remotion/renderer";
+import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
 import fs from "node:fs";
 import path from "node:path";
 
-const [propsFile, out] = process.argv.slice(2);
+const [propsFile, out, id = "Lesson", mode = "video", frame = "0"] = process.argv.slice(2);
 const inputProps = JSON.parse(fs.readFileSync(propsFile, "utf-8"));
 const root = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"));
 const build = path.join(root, "build");
@@ -23,13 +23,17 @@ if (!fs.existsSync(stamp) || fs.statSync(stamp).mtimeMs < newest(path.join(root,
   serveUrl = await bundle({ entryPoint: path.join(root, "src", "index.ts"), outDir: build });
 }
 
-const composition = await selectComposition({ serveUrl, id: "Lesson", inputProps });
-await renderMedia({
-  composition,
-  serveUrl,
-  codec: "h264",
-  outputLocation: out,
-  inputProps,
-  onProgress: ({ progress }) => console.log(JSON.stringify({ progress })),
-});
+const composition = await selectComposition({ serveUrl, id, inputProps });
+if (mode === "still") {
+  await renderStill({ composition, serveUrl, output: out, inputProps, frame: Number(frame) });
+} else {
+  await renderMedia({
+    composition,
+    serveUrl,
+    codec: "h264",
+    outputLocation: out,
+    inputProps,
+    onProgress: ({ progress }) => console.log(JSON.stringify({ progress })),
+  });
+}
 console.log(JSON.stringify({ progress: 1 }));

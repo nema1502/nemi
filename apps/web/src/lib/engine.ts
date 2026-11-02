@@ -1,6 +1,6 @@
 "use client";
 
-import type { Lesson, Quiz, Scene, Theme } from "@nemi/video";
+import type { EventKit, Lesson, Quiz, Scene, Theme } from "@nemi/video";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export const ENGINE = (process.env.NEXT_PUBLIC_ENGINE_URL ?? "http://localhost:8000").replace(/\/$/, "");
@@ -54,6 +54,9 @@ export const api = {
   render: (id: string) => call<Lesson>(`/api/lessons/${id}/render`, { method: "POST" }),
   watch: (id: string) => call(`/api/lessons/${id}/watch`, { method: "POST" }),
   remove: (id: string) => call(`/api/lessons/${id}`, { method: "DELETE" }),
+  createEvent: (form: FormData) => call<EventKit>("/api/events", { method: "POST", body: form }),
+  getEvent: (id: string) => call<EventKit>(`/api/events/${id}`),
+  exportEvent: (id: string) => call(`/api/events/${id}/export`, { method: "POST" }),
 };
 
 export const asset = (p: string | null | undefined) => (!p ? "" : p.startsWith("/") ? p : `${ENGINE}/${p}`);
@@ -106,4 +109,33 @@ export function busy(l: Lesson | null) {
       (["hook", "image", "diagram"].includes(s.kind) && !s.assets.image) ||
       (s.kind === "manim" && !s.assets.clip),
   );
+}
+
+/** Polls an event kit while Nemi designs or renders it. */
+export function useKitLive(id: string | undefined) {
+  const [kit, setKit] = useState<EventKit | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!id) return;
+    let timer: ReturnType<typeof setTimeout>;
+    let alive = true;
+    const tick = async () => {
+      try {
+        const k = await api.getEvent(id);
+        if (!alive) return;
+        setKit(k);
+        setError(null);
+        timer = setTimeout(tick, k.status === "ready" || k.status === "error" ? 6000 : 1500);
+      } catch (e) {
+        setError((e as Error).message);
+        timer = setTimeout(tick, 4000);
+      }
+    };
+    tick();
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [id]);
+  return { kit, error };
 }
