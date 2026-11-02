@@ -9,8 +9,9 @@ from nemi.voice import _spread_words
 def test_teacher_words_stay_inside_their_turn():
     turns = [{"transcript": "Hola chicos.", "startMs": 500, "endMs": 1500},
              {"transcript": "Hoy vemos volcanes", "startMs": 2000, "endMs": 4000}]
-    words = _spread_words(turns, total=5)
+    words, text = _spread_words(turns, total=5)
     assert [w.text for w in words] == ["Hola", "chicos", "Hoy", "vemos", "volcanes"]
+    assert text == "Hola chicos. Hoy vemos volcanes"
     assert words[0].start == 0.5 and words[1].end == 1.5
     assert all(2.0 <= w.start < w.end <= 4.0 for w in words[2:])
     assert all(a.end <= b.start + 1e-6 for a, b in zip(words, words[1:]))
@@ -34,3 +35,15 @@ def test_box_overlap_and_image_sizes():
     assert _overlap((0, 0, 10, 10), (20, 20, 30, 30)) == 0
     assert image_size_for("hook", "landscape") == "1792x1024"
     assert image_size_for("diagram", "portrait") == "1024x1024"
+
+
+def test_overlapping_turns_do_not_repeat_words():
+    # What Muse Voice Transcribe returned in the cloud: each turn repeats the edge of the previous one
+    turns = [{"transcript": "Chicos", "startMs": 0, "endMs": 600},
+             {"transcript": "Chicos, miren el lago Titicaca. Eso se llama", "startMs": 0, "endMs": 6000},
+             {"transcript": "llama evaporación. Forma las nubes.", "startMs": 5500, "endMs": 9000},
+             {"transcript": "las nubes.", "startMs": 8500, "endMs": 9200}]
+    words, text = _spread_words(turns, total=10)
+    assert text == "Chicos, miren el lago Titicaca. Eso se llama evaporación. Forma las nubes."
+    assert [w.text for w in words].count("llama") == 1
+    assert all(a.start <= b.start for a, b in zip(words, words[1:]))
