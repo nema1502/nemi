@@ -25,7 +25,8 @@ export const Quiz: React.FC<SceneProps> = ({ scene, timing }) => {
       <div style={{ display: "grid", gridTemplateColumns: portrait ? "1fr" : "1fr 1fr", gap: portrait ? 24 : 28 }}>
         {quiz.options.map((o, i) => {
           const right = i === quiz.answer_index;
-          const color = revealed ? (right ? theme.good : theme.muted) : [theme.accent, theme.accent2, theme.accent3, theme.bad][i];
+          // Every option looks the same until the reveal, so no color hints at the answer
+          const color = revealed ? (right ? theme.good : theme.muted) : theme.accent;
           return (
             <Reveal key={i} delay={LEAD + 0.5 + i * 0.25}>
               <Card
@@ -67,8 +68,8 @@ const Countdown: React.FC<{ start: number }> = ({ start }) => {
   const p = interpolate(t, [0, THINK], [0, 1], { extrapolateRight: "clamp" });
   const C = 2 * Math.PI * 54;
   return (
-    <div style={{ position: "absolute", right: 90, top: 120 }}>
-      <svg width="150" height="150" viewBox="0 0 120 120">
+    <div style={{ position: "absolute", right: 80, top: 100 }}>
+      <svg width="210" height="210" viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="54" fill={alpha(theme.surface, 0.9)} stroke={alpha(theme.muted, 0.3)} strokeWidth="8" />
         <circle cx="60" cy="60" r="54" fill="none" stroke={theme.accent3} strokeWidth="8" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * p} transform="rotate(-90 60 60)" />
         <text x="60" y="76" textAnchor="middle" fontSize="48" fontWeight="800" fill={theme.ink}>{left}</text>

@@ -114,7 +114,8 @@ const Part: React.FC<{ region: Region; color: string; start: number; isActive: b
   const dash = length ? `${length * s} ${length}` : undefined;
   return (
     <g style={{ filter: isActive ? `drop-shadow(0 0 ${10 + pulse * 14}px ${color})` : undefined }}>
-      <Shape region={region} fill={alpha(color, isActive ? 0.28 : 0.2)} opacity={s} />
+      {/* A light tint only: the outline and the glow mark the part, so a yellow sun stays yellow */}
+      <Shape region={region} fill={alpha(color, isActive ? 0.12 : 0.08)} opacity={s} />
       <Shape region={region} fill="none" stroke={color} strokeWidth={isActive ? 6 : 3.5} dash={dash} />
     </g>
   );
