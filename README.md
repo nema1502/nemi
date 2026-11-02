@@ -21,6 +21,12 @@
 </p>
 
 <p align="center">
+  <a href="https://nemi-eight.vercel.app/watch/demo"><b>▶ Watch an example lesson</b></a> ·
+  <a href="https://nemi-eight.vercel.app/lesson/demo"><b>Open it in the teacher studio</b></a> ·
+  <a href="https://nemi-eight.vercel.app">nemi-eight.vercel.app</a>
+</p>
+
+<p align="center">
   <a href="#see-it">See it</a> ·
   <a href="#how-metas-models-work-together">Meta models</a> ·
   <a href="#architecture">Architecture</a> ·
