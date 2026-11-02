@@ -119,7 +119,6 @@ export function Landing() {
               <li key={k} className="flex items-center gap-3 text-sm"><Check className="size-4 flex-none text-amber" />{k}</li>
             ))}
           </ul>
-          <Link href="/events" className="btn-primary mt-8"><Ticket className="size-4" />{t.events.cta}</Link>
         </div>
         <div className="relative mx-auto w-full max-w-md">
           <div className="grid grid-cols-3 gap-1.5 overflow-hidden rounded-2xl border border-line bg-panel p-1.5 shadow-2xl shadow-black/40">
