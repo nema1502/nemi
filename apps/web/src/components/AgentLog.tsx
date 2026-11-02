@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef } from "react";
-import { useStudioCopy } from "@/lib/studioCopy";
+import { useLogText, useStudioCopy } from "@/lib/studioCopy";
 
 const STEP: Record<string, { icon: typeof Brain; label: string; color: string }> = {
   read: { icon: BookOpen, label: "Reading", color: "text-teal" },
@@ -43,6 +43,7 @@ export function AgentLog({ lesson }: { lesson: Lesson }) {
 
 function Row({ e }: { e: LessonEvent }) {
   const labels = useStudioCopy().agent.steps;
+  const say = useLogText();
   const s = STEP[e.step] ?? STEP.plan;
   const Icon = s.icon;
   const tone = e.level === "ok" ? "text-green" : e.level === "warn" ? "text-amber" : e.level === "error" ? "text-red" : s.color;
@@ -58,7 +59,7 @@ function Row({ e }: { e: LessonEvent }) {
       <Icon className={`mt-0.5 size-4 flex-none ${tone}`} />
       <p className="leading-snug">
         <span className={`mr-1.5 text-[11px] font-bold uppercase tracking-wide ${tone}`}>{labels[e.step] ?? s.label}</span>
-        <span className="text-ink/90">{e.message}</span>
+        <span className="text-ink/90">{say(e.message)}</span>
       </p>
     </motion.div>
   );
@@ -90,6 +91,7 @@ function Review({ review }: { review: NonNullable<Lesson["review"]> }) {
 /** Big centered view while the plan doesn't exist yet. */
 export function AgentStage({ lesson }: { lesson: Lesson }) {
   const t = useStudioCopy().agent;
+  const say = useLogText();
   const thoughts = lesson.events.filter((e) => e.step === "think").slice(-3);
   const last = [...lesson.events].reverse().find((e) => e.step !== "think");
   return (
@@ -103,7 +105,7 @@ export function AgentStage({ lesson }: { lesson: Lesson }) {
         </div>
       )}
       <div>
-        <p className="text-xl font-bold">{lesson.status === "error" ? t.wrong : last?.message ?? t.starting}</p>
+        <p className="text-xl font-bold">{lesson.status === "error" ? t.wrong : last ? say(last.message) : t.starting}</p>
         <p className="mt-1 text-sm text-muted">{lesson.error ?? (lesson.source_name ? t.reading(lesson.source_name) : lesson.topic)}</p>
       </div>
       <div className="w-full max-w-xl space-y-2">

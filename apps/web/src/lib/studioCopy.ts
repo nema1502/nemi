@@ -181,3 +181,52 @@ const student = {
 };
 
 export const studentCopy = (language: string) => student[language as keyof typeof student] ?? student.English;
+
+/** The engine writes its log in English; the Spanish studio shows the known lines in Spanish. */
+const LOG_ES: [RegExp, string][] = [
+  [/^Muse Voice Transcribe is listening to your recording$/, "Muse Voice Transcribe está escuchando tu grabación"],
+  [/^Your voice is in: ([\s\S]*)$/, "Tu voz ya está: $1"],
+  [/^Muse Spark is reading the class results$/, "Muse Spark está leyendo los resultados de la clase"],
+  [/^Muse Spark suggested what to reteach$/, "Muse Spark sugirió qué reforzar"],
+  [/^Class insight failed: ([\s\S]*)$/, "Falló el análisis de la clase: $1"],
+  [/^Muse Spark is fixing its (\d+) notes$/, "Muse Spark está corrigiendo sus $1 notas"],
+  [/^Nothing in the notes can be fixed inside the lesson$/, "Ninguna nota se puede corregir dentro de la clase"],
+  [/^(\d+) scenes fixed\. Rendering again so Muse Spark can watch the new version$/, "$1 escenas corregidas. Renderizando de nuevo para que Muse Spark mire la nueva versión"],
+  [/^Fixing failed: ([\s\S]*)$/, "Falló la corrección: $1"],
+  [/^(.+) is planning the lesson in five acts$/, "$1 está planificando la clase en cinco actos"],
+  [/^(Muse \w+(?: [\d.]+)?) is reading (.+)$/, "$1 está leyendo $2"],
+  [/^Draft ready: (\d+) scenes, (.*)$/, "Borrador listo: $1 escenas, $2"],
+  [/^Checking the draft against the 7 questions$/, "Revisando el borrador con las 7 preguntas"],
+  [/^(\d+)\/(\d+) checks passed, (\d+) fact issues$/, "$1 de $2 preguntas aprobadas, $3 errores de datos"],
+  [/^Revising the plan with the reviewer's notes$/, "Corrigiendo el plan con las notas de la revisión"],
+  [/^Plan revised$/, "Plan corregido"],
+  [/^Lesson ready to preview$/, "Clase lista para ver"],
+  [/^Opening picture failed: ([\s\S]*)$/, "Falló la imagen de apertura: $1"],
+  [/^Scene "(.+?)": ([\s\S]*)$/, "Escena \"$1\": $2"],
+  [/^Muse Image is drawing "(.+)" in the style of the opening scene$/, "Muse Image está dibujando \"$1\" con el estilo de la escena inicial"],
+  [/^Muse Image is drawing "(.+)"$/, "Muse Image está dibujando \"$1\""],
+  [/^Illustration ready: "(.+)"$/, "Ilustración lista: \"$1\""],
+  [/^Muse Spark \+ SAM 3\.1 are finding (\d+) parts in "(.+)"$/, "Muse Spark y SAM 3.1 están buscando $1 partes en \"$2\""],
+  [/^SAM 3\.1 cut out (\d+)\/(\d+) parts$/, "SAM 3.1 recortó $1 de $2 partes"],
+  [/^Muse Spark is writing a Manim animation: "(.+)"$/, "Muse Spark está escribiendo una animación Manim: \"$1\""],
+  [/^Vision check: frames look right$/, "Revisión visual: los cuadros se ven bien"],
+  [/^Vision check: (\d+) issue\(s\), repairing$/, "Revisión visual: $1 problema(s), reparando"],
+  [/^Auditor pass (\d+): (\d+) error\(s\) left, rendering the best version$/, "Pasada $1 del auditor: quedan $2 error(es), se renderiza la mejor versión"],
+  [/^Auditor pass (\d+): (\d+) error\(s\), Muse Spark is repairing$/, "Pasada $1 del auditor: $2 error(es), Muse Spark está reparando"],
+  [/^Auditor pass (\d+): clean \((\d+) warnings\)\. Rendering.*$/, "Pasada $1 del auditor: sin errores ($2 avisos). Renderizando..."],
+  [/^Animation ready: "(.+)" \((.+)\)$/, "Animación lista: \"$1\" ($2)"],
+  [/^Rendering the MP4 with Remotion$/, "Renderizando el MP4 con Remotion"],
+  [/^MP4 ready to download$/, "MP4 listo para descargar"],
+  [/^Muse Spark is watching the whole video, picture and sound$/, "Muse Spark está mirando todo el video, imagen y sonido"],
+  [/^Video review failed: ([\s\S]*)$/, "Falló la revisión del video: $1"],
+  [/^Muse Spark watched the video: (\d+)\/10, (\d+) notes$/, "Muse Spark miró el video: $1/10, $2 notas"],
+];
+
+export function useLogText() {
+  const { lang } = useLang();
+  return (message: string) => {
+    if (lang !== "es") return message;
+    for (const [re, to] of LOG_ES) if (re.test(message)) return message.replace(re, to);
+    return message;
+  };
+}
