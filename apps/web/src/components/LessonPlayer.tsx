@@ -134,7 +134,7 @@ function QuizOverlay({ scene, picked, onPick }: { scene: Scene; picked: number |
       </div>
       {picked !== null && (
         <motion.p initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className={`text-lg font-bold ${picked === quiz.answer_index ? "text-green" : "text-amber"}`}>
-          {picked === quiz.answer_index ? "Correct!" : "Not quite — watch why."}
+          {picked === quiz.answer_index ? "Correct!" : "Not quite. Watch why."}
         </motion.p>
       )}
     </motion.div>

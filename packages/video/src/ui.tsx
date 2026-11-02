@@ -12,7 +12,7 @@ import {
 import { FPS } from "./timing";
 import type { Theme, Word } from "./types";
 
-// Lexend was designed to make reading easier — a good default for students.
+// Lexend was designed to make reading easier, a good default for students.
 export const { fontFamily } = loadFont("normal", { weights: ["400", "600", "700", "800"], subsets: ["latin", "latin-ext"] });
 
 export type Ctx = { theme: Theme; asset: (p: string | null | undefined) => string; captions: boolean; interactive: boolean };

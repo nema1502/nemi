@@ -19,7 +19,7 @@ LENGTHS = {
 }
 
 SCENE_KINDS = """\
-Scene kinds you can use (pick the one that SHOWS the idea best — something visually new every scene):
+Scene kinds you can use (pick the one that SHOWS the idea best, with something visually new every scene):
 - hook: the opening. A full-screen illustration of an everyday object or scene + one punchy headline (title).
   Needs image_prompt. points: [] .
 - concept: a title and 2-4 very short on-screen lines (points) that appear as the narration says them.
@@ -49,6 +49,8 @@ Field rules:
 - image_prompt describes the picture concretely (subject, setting, viewpoint). Never ask for text,
   letters, numbers or labels inside the image. Style comes from art_direction, don't repeat it.
 - act maps the scene to the five-act arc: anchor -> crack -> key -> proof -> thread.
+- Punctuation is plain in everything students see or hear: commas, periods, colons, question and
+  exclamation marks, straight quotes. Never em dashes, guillemets, middle dots, arrow symbols or emojis.
 - art_direction: one consistent illustration style for the whole lesson, suited to the audience
   (e.g. "flat vector illustration, soft shadows, warm friendly colors, clean shapes").
 """
@@ -57,7 +59,7 @@ Field rules:
 def director(*, language: str, audience: str, length: str, from_document: bool) -> str:
     source_rule = (
         "The teacher attached a document. Teach ONLY what the document supports. Every number, date "
-        "and fact must come from it. Pick the most important idea for this audience — a lesson is one "
+        "and fact must come from it. Pick the most important idea for this audience: a lesson is one "
         "idea taught well, not a summary of every page."
         if from_document else
         "The teacher gave a topic. Only state facts you are certain of; prefer well-established "
@@ -72,7 +74,7 @@ Length: {LENGTHS.get(length, LENGTHS['standard'])}
 
 {source_rule}
 
-You follow the craft of the nemaxyz studio. Its documents are below — apply them, adapting the
+You follow the craft of the nemaxyz studio. Its documents are below. Apply them, adapting the
 examples to this audience (for students, the "three lives" rule becomes: a student who struggles,
 an average student and a curious one must all understand the example).
 

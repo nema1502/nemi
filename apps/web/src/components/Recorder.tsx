@@ -35,7 +35,7 @@ export function Recorder({ script, onDone }: { script: string; onDone: (audio: B
   if (state === "recording") {
     return (
       <div className="rounded-xl border border-red/50 bg-red/10 p-3">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-red">Recording · {seconds}s — read this:</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-red">Recording {seconds}s. Read this:</p>
         <p className="mb-3 text-sm leading-relaxed">{script}</p>
         <button onClick={() => rec.current?.stop()} className="btn bg-red text-white"><Square className="size-4" />Stop</button>
       </div>

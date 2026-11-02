@@ -1,4 +1,4 @@
-// Mirrors engine/nemi/schema.py — keep both in sync.
+// Mirrors engine/nemi/schema.py. Keep both in sync.
 
 export type SceneKind = "hook" | "concept" | "image" | "diagram" | "formula" | "manim" | "quiz" | "summary";
 export type Act = "anchor" | "crack" | "key" | "proof" | "thread";

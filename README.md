@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="docs/media/banner.jpg" alt="Nemi — your chapter, as a lesson video your students finish" width="100%">
+  <img src="docs/media/banner.jpg" alt="Nemi: your chapter, as a lesson video your students finish" width="100%">
 </p>
 
 <p align="center">
   <b>Upload a textbook chapter or type a topic. Get an animated lesson video your students actually finish.</b><br>
-  <sub>Meta Global AI Developer Hackathon · Indie track · <i>Build for Your World</i></sub>
+  <sub>Meta Global AI Developer Hackathon 2026, Indie track, <i>Build for Your World</i></sub>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Muse_Spark_1.3-plan_·_review_·_vision-7C5CFF?style=flat-square" alt="Muse Spark">
+  <img src="https://img.shields.io/badge/Muse_Spark_1.3-plan_and_review-7C5CFF?style=flat-square" alt="Muse Spark">
   <img src="https://img.shields.io/badge/Muse_Image-illustrations-7C5CFF?style=flat-square" alt="Muse Image">
   <img src="https://img.shields.io/badge/SAM_3.1-diagram_parts-7C5CFF?style=flat-square" alt="SAM 3.1">
   <img src="https://img.shields.io/badge/Muse_Voice_Transcribe-teacher_voice-7C5CFF?style=flat-square" alt="Muse Voice Transcribe">
@@ -21,16 +21,16 @@
 </p>
 
 <p align="center">
-  <a href="https://nemi-eight.vercel.app/watch/demo"><b>▶ Watch an example lesson</b></a> ·
-  <a href="https://nemi-eight.vercel.app/lesson/demo"><b>Open it in the teacher studio</b></a> ·
+  <a href="https://nemi-eight.vercel.app/watch/demo"><b>▶ Watch an example lesson</b></a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://nemi-eight.vercel.app/lesson/demo"><b>Open it in the teacher studio</b></a>&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://nemi-eight.vercel.app">nemi-eight.vercel.app</a>
 </p>
 
 <p align="center">
-  <a href="#see-it">See it</a> ·
-  <a href="#how-metas-models-work-together">Meta models</a> ·
-  <a href="#architecture">Architecture</a> ·
-  <a href="#built-during-the-hackathon">What's new</a> ·
+  <a href="#see-it">See it</a>&nbsp;&nbsp;&nbsp;
+  <a href="#how-metas-models-work-together">Meta models</a>&nbsp;&nbsp;&nbsp;
+  <a href="#architecture">Architecture</a>&nbsp;&nbsp;&nbsp;
+  <a href="#built-during-the-hackathon">What's new</a>&nbsp;&nbsp;&nbsp;
   <a href="#run-it-locally">Run it</a>
 </p>
 
@@ -51,13 +51,13 @@ and hands the teacher a live editor before anything reaches the class.
 
 <p align="center">
   <img src="docs/media/diagram.gif" alt="A volcano diagram whose parts light up as the narrator names them" width="720"><br>
-  <sub><b>Muse Image</b> draws the volcano without any text · <b>Muse Spark</b> finds each part · <b>SAM 3.1</b> cuts it out to the pixel ·
-  each part lights up the moment the narrator says its name, with a label spelled right in the lesson's language.</sub>
+  <sub><b>Muse Image</b> draws the volcano without any text, <b>Muse Spark</b> finds each part and <b>SAM 3.1</b> cuts it out to the pixel.
+  Each part lights up the moment the narrator says its name, with a label spelled right in the lesson's language.</sub>
 </p>
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/media/hook.jpg" alt="Hook scene"><br><sub><b>Hook.</b> Every lesson opens with something students touched this week — here, a pot boiling over.</sub></td>
+    <td width="50%"><img src="docs/media/hook.jpg" alt="Hook scene"><br><sub><b>Hook.</b> Every lesson opens with something students touched this week. Here, a pot boiling over.</sub></td>
     <td width="50%"><img src="docs/media/manim.jpg" alt="Manim scene"><br><sub><b>Manim.</b> Written by Muse Spark, checked by a geometry auditor, repaired, rendered, then checked again by looking at the frames.</sub></td>
   </tr>
   <tr>
@@ -66,7 +66,7 @@ and hands the teacher a live editor before anything reaches the class.
   </tr>
 </table>
 
-The volcano lesson above was generated from one line — *"Las partes de un volcán y por qué entra en erupción, 5to de primaria, Bolivia"* —
+The volcano lesson above was generated from one line, *"Las partes de un volcán y por qué entra en erupción, 5to de primaria, Bolivia"*,
 and it talks about **Sajama** and **Licancabur**, volcanoes Bolivian kids can actually see.
 
 ## How Meta's models work together
@@ -78,8 +78,8 @@ Each step is a Meta model doing what it is good at, and most steps are checked b
 | **Read & plan** | Muse Spark 1.3 *(Muse Wonder for dense documents)* | Reads the PDF natively and writes the lesson as structured JSON in five narrative acts: hook, problem, key idea, proof, close. Its reasoning summaries stream live into the studio. |
 | **Review** | Muse Spark 1.3 | A second pass scores the plan against 7 audience-retention questions and flags facts the source doesn't support. A third pass fixes them. In testing it caught *"lava is not a structural part of a volcano"* and *"not every eruption explodes"*. |
 | **Illustrate** | Muse Image | One art direction per lesson, and **no text inside images**: image models garble letters, so labels are added later as real text. |
-| **Find the parts** | Muse Spark (vision) → SAM 3.1 | SAM alone couldn't find *"magma chamber"* — it's a concept, not a shape. So Muse Spark boxes each part roughly, and SAM 3.1 turns each box into a pixel-exact mask (4/4 parts, 0.79–0.91 confidence). |
-| **Animate** | Muse Spark → Manim | Write the scene → dry-run it through a geometry auditor (text off-frame, overlaps, floating connectors) → send errors back → render → look at rendered frames → one more repair if something is visibly wrong. |
+| **Find the parts** | Muse Spark (vision), then SAM 3.1 | SAM alone couldn't find *"magma chamber"*: it's a concept, not a shape. So Muse Spark boxes each part roughly, and SAM 3.1 turns each box into a pixel-exact mask (4 of 4 parts, 0.79 to 0.91 confidence). |
+| **Animate** | Muse Spark writing Manim | Write the scene, dry-run it through a geometry auditor (text off-frame, overlaps, floating connectors), send errors back, render, look at the rendered frames, and repair once more if something is visibly wrong. |
 | **Teacher's voice** | Muse Voice Transcribe | Re-record any scene in your own voice from the browser. The transcript, biased with the lesson's key terms, becomes the captions. |
 
 Default narration uses neural TTS with Latin American voices (including Bolivian), since Meta Model API doesn't offer speech
@@ -89,17 +89,17 @@ synthesis. Word timings drive the karaoke captions and the diagram highlights.
 
 ```mermaid
 flowchart LR
-  T([Teacher: PDF or topic]) --> W[apps/web · Next.js studio]
-  W -- REST --> E[engine · FastAPI]
-  E --> P[Plan → review → revise<br/>Muse Spark]
+  T([Teacher: PDF or topic]) --> W[apps/web<br/>Next.js studio]
+  W -- REST --> E[engine<br/>FastAPI]
+  E --> P[Plan, review, revise<br/>Muse Spark]
   P --> S{every scene<br/>in parallel}
   S --> I[Muse Image] --> D[Muse Spark boxes<br/>SAM 3.1 masks]
   S --> V[Narration +<br/>word timings]
-  S --> M[Manim agent<br/>write · audit · repair · look]
+  S --> M[Manim agent<br/>write, audit, repair, look]
   D & V & M --> L[(lesson.json<br/>+ assets)]
   L --> R[packages/video<br/>Remotion composition]
   R -- Player --> W
-  R -- renderMedia --> MP4([MP4 · student link])
+  R -- renderMedia --> MP4([MP4 and<br/>student link])
 ```
 
 | Folder | What it is |
@@ -112,11 +112,11 @@ flowchart LR
 
 Judges: here is exactly what is new and what isn't.
 
-- **Pre-existing — [`engine/motor/`](engine/motor/PREEXISTING.md).** The few parts of *nemaxyz-motor*, my own Manim style library
+- **Pre-existing: [`engine/motor/`](engine/motor/PREEXISTING.md).** The few parts of *nemaxyz-motor*, my own Manim style library
   from September 2026, that Nemi uses: style helpers, icons, one reference scene, the geometry auditor and four pedagogy notes.
   Imported unchanged in the first commit, with the source commit hash.
-- **New, October 26 – November 4, 2026 — everything else.** The lesson agent and its review loop, every Meta Model API integration,
-  the Muse Spark → SAM 3.1 diagram pipeline, the self-repairing Manim loop, teacher voice transcription, the Remotion composition
+- **New, built from October 26 to November 4, 2026: everything else.** The lesson agent and its review loop, every Meta Model API integration,
+  the Muse Spark and SAM 3.1 diagram pipeline, the self-repairing Manim loop, teacher voice transcription, the Remotion composition
   and all its scenes, the engine API and the web studio.
 
 ## Run it locally
@@ -145,8 +145,9 @@ pnpm studio
 
 ## Author
 
-**Nicolás Mejía Agreda** — founder of Nemi · Santa Cruz de la Sierra, Bolivia
-[LinkedIn](https://www.linkedin.com/in/nicolas-mejia-agreda/) · [X](https://x.com/Emiru1502) · [GitHub](https://github.com/nema1502)
+**Nicolás Mejía Agreda**, founder of Nemi, Santa Cruz de la Sierra, Bolivia
+
+[LinkedIn](https://www.linkedin.com/in/nicolas-mejia-agreda/)&nbsp;&nbsp;&nbsp;[X](https://x.com/Emiru1502)&nbsp;&nbsp;&nbsp;[GitHub](https://github.com/nema1502)
 
 <sub>Icons in `engine/motor/comun/iconos` are [Font Awesome](https://fontawesome.com) (CC BY 4.0). Videos are rendered with
 [Remotion](https://remotion.dev) and [Manim Community](https://www.manim.community); math with [KaTeX](https://katex.org); typeface Lexend.</sub>

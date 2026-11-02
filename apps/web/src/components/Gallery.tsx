@@ -37,7 +37,7 @@ export function Gallery() {
               </div>
               <div className="p-3.5">
                 <p className="line-clamp-1 font-semibold">{l.title || "Untitled"}</p>
-                <p className="text-xs text-muted">{l.scenes} scenes · {new Date(l.created_at * 1000).toLocaleDateString()}</p>
+                <p className="text-xs text-muted">{l.scenes} scenes, {new Date(l.created_at * 1000).toLocaleDateString()}</p>
               </div>
             </Link>
           </motion.div>

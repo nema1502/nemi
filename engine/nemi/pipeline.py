@@ -49,7 +49,7 @@ async def create(lesson_id: str, *, length: str, pdf: tuple[bytes, str] | None) 
         await log(lesson_id, "plan", "Planning the lesson in five acts")
         common = dict(audience=lesson.audience, language=lesson.language, pdf=pdf)
         plan = await planner.plan(topic=lesson.topic, length=length, on_thought=thought, **common)
-        await log(lesson_id, "plan", f"Draft ready: {len(plan.scenes)} scenes — \"{plan.title}\"", "ok")
+        await log(lesson_id, "plan", f"Draft ready: {len(plan.scenes)} scenes, \"{plan.title}\"", "ok")
 
         await set_status(lesson_id, "reviewing")
         await log(lesson_id, "review", "Checking the draft against the 7 questions")
@@ -162,12 +162,12 @@ async def animate(lesson_id: str, scene_id: str) -> None:
     async def on_step(n: int, errors: list[str], warnings: list[str], last: bool):
         if n == -1:
             await log(lesson_id, "manim", "Vision check: " + ("frames look right" if not errors
-                      else f"{len(errors)} issue(s) — repairing"), "ok" if not errors else "warn")
+                      else f"{len(errors)} issue(s), repairing"), "ok" if not errors else "warn")
         elif errors and last:
-            await log(lesson_id, "manim", f"Auditor pass {n}: {len(errors)} error(s) left — rendering the "
+            await log(lesson_id, "manim", f"Auditor pass {n}: {len(errors)} error(s) left, rendering the "
                                           f"best version", "warn")
         elif errors:
-            await log(lesson_id, "manim", f"Auditor pass {n}: {len(errors)} error(s) — Muse Spark is repairing",
+            await log(lesson_id, "manim", f"Auditor pass {n}: {len(errors)} error(s), Muse Spark is repairing",
                       "warn")
         else:
             await log(lesson_id, "manim", f"Auditor pass {n}: clean ({len(warnings)} warnings). Rendering…",

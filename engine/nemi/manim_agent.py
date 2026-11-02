@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from . import config, meta
 from .schema import Lesson, ManimAttempt, Narration, Scene
 from .tts import probe_duration
+from .typography import clean_all
 
 MAX_AUDITS = 3
 _render_slots = asyncio.Semaphore(2)
@@ -41,7 +42,8 @@ Hard rules:
   put a small Dot exactly on its edge (shape.point_from_proportion(t)) and connect to that Dot, or
   place the label right next to the shape with no connector.
 - Icons only via icono(name) with these names: {icons}. No other files, no ImageMobject, no SVGs from disk.
-- Keep everything inside the safe zone. All on-screen text in the lesson's language.
+- Keep everything inside the safe zone. All on-screen text in the lesson's language, with plain
+  punctuation: no em dashes, guillemets, middle dots, arrow symbols or emojis inside text.
 - The animation must last DURACION_TOTAL seconds: time your self.play/self.wait so each step lands on the
   narration beat it illustrates (beats are given in seconds). End with a short hold, not a fade to empty.
 - Return only the module, inside one ```python code block.
@@ -110,8 +112,8 @@ def _audit(path: Path, cls: str) -> tuple[list[str], list[str], bool]:
     proc = subprocess.run([config.PYTHON, str(config.MOTOR / "auditor" / "auditar.py"), str(path), cls],
                           cwd=config.MOTOR, capture_output=True, text=True, encoding="utf-8",
                           errors="replace", timeout=300)
-    errors = re.findall(r"\[ERROR\] (.+)", proc.stdout)
-    warnings = re.findall(r"\[AVISO\] (.+)", proc.stdout)
+    errors = clean_all(re.findall(r"\[ERROR\] (.+)", proc.stdout))
+    warnings = clean_all(re.findall(r"\[AVISO\] (.+)", proc.stdout))
     if proc.returncode != 0 and not errors:
         # The module itself crashed (syntax error, bad helper call...): the traceback is the error
         return [(proc.stderr or proc.stdout).strip()[-1800:]], warnings, True
@@ -154,7 +156,7 @@ async def animate(lesson: Lesson, scene: Scene, work: Path, on_step) -> tuple[Pa
     cls = "Nemi" + re.sub(r"\W", "", scene.id).capitalize()
     path = work / "scene.py"
 
-    task = f"""Lesson: {lesson.title} — audience: {lesson.audience}. Language: {lesson.language}.
+    task = f"""Lesson: {lesson.title}. Audience: {lesson.audience}. Language: {lesson.language}.
 Scene title: {scene.title}
 
 What the animation must show:

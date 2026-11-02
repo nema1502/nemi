@@ -14,8 +14,8 @@ export const KIND: Record<Scene["kind"], { icon: typeof Brain; label: string }> 
   hook: { icon: Sparkles, label: "Hook" },
   concept: { icon: Type, label: "Concept" },
   image: { icon: ImageIcon, label: "Illustration" },
-  diagram: { icon: ScanSearch, label: "Diagram · SAM 3.1" },
-  formula: { icon: SquareFunction, label: "Formula · LaTeX" },
+  diagram: { icon: ScanSearch, label: "Diagram with SAM 3.1" },
+  formula: { icon: SquareFunction, label: "Formula in LaTeX" },
   manim: { icon: Clapperboard, label: "Manim animation" },
   quiz: { icon: CircleHelp, label: "Quiz" },
   summary: { icon: ListChecks, label: "Summary" },
@@ -87,7 +87,7 @@ export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onCh
           <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
             <div className="space-y-3 border-t border-line p-3">
               <Field label="Title"><input className="field" value={v("title")} onChange={(e) => set({ title: e.target.value })} /></Field>
-              <Field label="Narration" hint={narr ? `${narr.duration.toFixed(1)}s · ${narr.source === "teacher" ? "your voice" : narr.voice}` : "voicing…"}>
+              <Field label="Narration" hint={narr ? `${narr.duration.toFixed(1)}s, ${narr.source === "teacher" ? "your voice" : narr.voice}` : "voicing…"}>
                 <textarea className="field min-h-24 resize-y leading-relaxed" value={v("narration")} onChange={(e) => set({ narration: e.target.value })} />
               </Field>
 
@@ -178,7 +178,7 @@ function DiagramStatus({ scene }: { scene: Scene }) {
       <div>
         <p className="mb-1 flex items-center gap-1 font-semibold text-teal"><Shapes className="size-3.5" />SAM 3.1 cut out {r.filter((x) => x.path).length}/{r.length} parts</p>
         {r.map((x) => (
-          <p key={x.label} className="text-muted">{x.path ? "✓" : "·"} {x.label}{x.confidence ? ` — ${(x.confidence * 100).toFixed(0)}%` : ""}</p>
+          <p key={x.label} className={x.path ? "text-muted" : "text-amber"}>{x.path ? "✓" : "✗"} {x.label}{x.confidence ? `, ${(x.confidence * 100).toFixed(0)}%` : ""}</p>
         ))}
       </div>
     </div>
@@ -190,13 +190,13 @@ function ManimStatus({ scene }: { scene: Scene }) {
   if (!a.length) return null;
   return (
     <div className="rounded-lg bg-black/20 p-2.5 text-xs">
-      <p className="mb-1 font-semibold text-violet">Write → audit → repair</p>
+      <p className="mb-1 font-semibold text-violet">Write, audit, repair</p>
       {a.map((x, i) => {
         const vision = x.warnings.some((w) => w.startsWith("vision check"));
         const what = vision ? "Vision check" : `Auditor pass ${x.attempt}`;
         return (
           <p key={i} className={x.errors.length ? "text-amber" : "text-green"} title={x.errors.join("\n")}>
-            {what}: {x.errors.length ? `${x.errors.length} issue(s) → repaired` : vision ? "looks right" : "clean"}
+            {what}: {x.errors.length ? `${x.errors.length} issue(s), repaired` : vision ? "looks right" : "clean"}
           </p>
         );
       })}

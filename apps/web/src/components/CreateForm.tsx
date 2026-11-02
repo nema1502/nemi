@@ -111,7 +111,7 @@ export function CreateForm() {
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <span className="label">Students</span>
-          <input className="field" placeholder="e.g. 5th grade, 10–11 years old, rural school in Bolivia" value={audience} onChange={(e) => setAudience(e.target.value)} />
+          <input className="field" placeholder="e.g. 5th grade, 10 to 11 years old, rural school in Bolivia" value={audience} onChange={(e) => setAudience(e.target.value)} />
         </div>
         <div>
           <span className="label">Language</span>
@@ -123,7 +123,7 @@ export function CreateForm() {
           <span className="label">Voice</span>
           <select className="field" value={voice} onChange={(e) => setVoice(e.target.value)}>
             {(opts?.voices[language] ?? [voice]).map((v) => (
-              <option key={v} value={v}>{v.replace(/Neural$/, "").replace(/^(\w\w-\w\w)-/, "$1 · ")}</option>
+              <option key={v} value={v}>{v.replace(/Neural$/, "").replace(/^(\w\w-\w\w)-(.*)$/, "$2 ($1)")}</option>
             ))}
           </select>
         </div>

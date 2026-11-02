@@ -103,7 +103,7 @@ export function AgentStage({ lesson }: { lesson: Lesson }) {
         <AnimatePresence mode="popLayout">
           {thoughts.map((t) => (
             <motion.p key={t.t} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm italic text-violet/80">
-              “{t.message}”
+              {t.message}
             </motion.p>
           ))}
         </AnimatePresence>

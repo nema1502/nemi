@@ -7,6 +7,7 @@ from pathlib import Path
 
 from . import config
 from .schema import Event, Lesson
+from .typography import clean
 
 _locks: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
 
@@ -71,4 +72,4 @@ class Editor:
 
 async def log(lesson_id: str, step: str, message: str, level: str = "info") -> None:
     async with Editor(lesson_id) as lesson:
-        lesson.events.append(Event(t=time.time(), step=step, message=message, level=level))
+        lesson.events.append(Event(t=time.time(), step=step, message=clean(message), level=level))

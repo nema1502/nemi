@@ -3,6 +3,7 @@ against the 7 questions before anything is produced."""
 
 from . import config, meta, prompts
 from .schema import LessonPlanSpec, ReviewSpec
+from .typography import clean, clean_all
 
 
 def _request(topic: str, audience: str, has_pdf: bool) -> str:
@@ -31,17 +32,21 @@ async def plan(*, topic: str, audience: str, language: str, length: str,
 
 async def review(plan_: LessonPlanSpec, *, audience: str, language: str,
                  pdf: tuple[bytes, str] | None) -> ReviewSpec:
-    return await meta.think_json(
+    r = await meta.think_json(
         ReviewSpec,
         system=prompts.reviewer(language=language, audience=audience),
         content=_content(f"Lesson plan to review:\n{plan_.model_dump_json(indent=1)}", pdf),
         effort="medium",
     )
+    for c in r.checks:
+        c.reason, c.fix = clean(c.reason), clean(c.fix)
+    r.fact_issues = clean_all(r.fact_issues)
+    return r
 
 
 async def revise(plan_: LessonPlanSpec, review_: ReviewSpec, *, topic: str, audience: str, language: str,
                  length: str, pdf: tuple[bytes, str] | None, on_thought) -> LessonPlanSpec:
-    notes = [f"- {c.question}: {c.verdict.upper()} — {c.reason}. Fix: {c.fix}"
+    notes = [f"- {c.question}: {c.verdict.upper()}. {c.reason}. Fix: {c.fix}"
              for c in review_.checks if c.verdict != "yes"]
     notes += [f"- Fact issue: {f}" for f in review_.fact_issues]
     system = prompts.director(language=language, audience=audience, length=length, from_document=bool(pdf))
@@ -61,9 +66,18 @@ def needs_revision(r: ReviewSpec) -> bool:
 
 def tidy(p: LessonPlanSpec) -> LessonPlanSpec:
     """Guard rails on what the model returned, so the renderer never gets an impossible scene."""
+    p.title, p.subtitle = clean(p.title), clean(p.subtitle)
+    p.objectives, p.key_terms = clean_all(p.objectives), clean_all(p.key_terms)
     manims = 0
     for s in p.scenes:
-        s.points = [x for x in s.points if x.strip()][:4]
+        s.title, s.narration = clean(s.title), clean(s.narration)
+        s.image_prompt, s.manim_brief = clean(s.image_prompt), clean(s.manim_brief)
+        s.points = clean_all([x for x in s.points if x.strip()][:4])
+        if s.quiz:
+            s.quiz.question, s.quiz.explanation = clean(s.quiz.question), clean(s.quiz.explanation)
+            s.quiz.options = clean_all(s.quiz.options)
+        for part in s.diagram_parts:
+            part.label, part.note = clean(part.label), clean(part.note)
         if s.quiz:
             s.quiz.options = s.quiz.options[:4]
             s.quiz.answer_index = min(max(s.quiz.answer_index, 0), len(s.quiz.options) - 1)

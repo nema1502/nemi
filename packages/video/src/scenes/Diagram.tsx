@@ -7,7 +7,7 @@ import { alpha, Pending, SceneTitle, useLayout, useLesson } from "../ui";
 import type { SceneProps } from "./props";
 
 /**
- * A Muse Image illustration whose parts — cut out by SAM 3.1 — light up one by
+ * A Muse Image illustration whose parts, cut out by SAM 3.1, light up one by
  * one exactly when the narration names them. Labels are real text, so they are
  * crisp and spelled right in any language.
  */

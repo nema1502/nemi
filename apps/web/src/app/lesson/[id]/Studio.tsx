@@ -50,7 +50,7 @@ export function Studio() {
         <span className="hidden h-5 w-px bg-line sm:block" />
         <h1 className="min-w-0 flex-1 truncate text-lg font-bold">{lesson.title || lesson.topic || lesson.source_name}</h1>
         {demo ? (
-          <span className="rounded-full bg-violet/15 px-2.5 py-1 text-xs font-semibold text-violet">Example lesson · read-only</span>
+          <span className="rounded-full bg-violet/15 px-2.5 py-1 text-xs font-semibold text-violet">Example lesson, read-only</span>
         ) : (
           <>
             <StatusPill lesson={lesson} working={working} />
