@@ -47,3 +47,10 @@ def test_overlapping_turns_do_not_repeat_words():
     assert text == "Chicos, miren el lago Titicaca. Eso se llama evaporación. Forma las nubes."
     assert [w.text for w in words].count("llama") == 1
     assert all(a.start <= b.start for a, b in zip(words, words[1:]))
+
+
+def test_stutters_inside_a_turn_are_collapsed():
+    turns = [{"transcript": "Chicos,Chicos miren al cielo. cielo. El El sol calienta", "startMs": 0, "endMs": 5000}]
+    words, text = _spread_words(turns, total=6)
+    assert text == "Chicos, miren al cielo. El sol calienta"
+    assert [w.text for w in words] == ["Chicos", "miren", "al", "cielo", "El", "sol", "calienta"]

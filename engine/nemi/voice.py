@@ -4,6 +4,7 @@ Muse Voice Transcribe returns turn-level timestamps, not word-level ones, so
 word timings for the captions are spread across each turn by word length."""
 
 import asyncio
+import re
 import subprocess
 from pathlib import Path
 
@@ -52,7 +53,26 @@ def _spread_words(turns: list[dict], total: float) -> tuple[list[Word], str]:
                 break
         raw += [tok for tok, _ in timed]
         words += [w for _, w in timed]
-    return words, " ".join(raw)
+    return _collapse(raw, words)
+
+
+def _collapse(raw: list[str], words: list[Word]) -> tuple[list[Word], str]:
+    """The recognizer sometimes stutters at a pause ("cielo. cielo.", "El El sol", "Chicos,Chicos").
+    In narration a word said twice in a row is almost never meant, so keep it once."""
+    out_raw: list[str] = []
+    out_words: list[Word] = []
+    for tok, w in zip(raw, words):
+        glued = re.fullmatch(r"(\w+)([,.;:!?]*)\1([,.;:!?]*)", tok, flags=re.IGNORECASE)
+        if glued:
+            tok = glued.group(1) + (glued.group(3) or glued.group(2))
+            w = Word(text=glued.group(1), start=w.start, end=w.end)
+        if out_raw and _key(tok) and _key(tok) == _key(out_raw[-1]):
+            out_raw[-1] = tok if tok[-1:] in ".,;:!?" else out_raw[-1]
+            out_words[-1] = Word(text=out_words[-1].text, start=out_words[-1].start, end=w.end)
+            continue
+        out_raw.append(tok)
+        out_words.append(w)
+    return out_words, " ".join(out_raw)
 
 
 async def from_recording(src: Path, out_dir: Path, *, language: str, keywords: list[str]) -> Narration:
