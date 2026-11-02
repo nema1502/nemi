@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { AbsoluteFill, Audio, interpolate, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
+import { NemiMark } from "./Mark";
 import { Diagram } from "./scenes/Diagram";
 import { Formula } from "./scenes/Formula";
 import { Manim } from "./scenes/Manim";
@@ -86,11 +87,9 @@ const Chrome: React.FC<{ items: TimelineItem[] }> = ({ items }) => {
           );
         })}
       </div>
-      <div style={{ position: "absolute", top: portrait ? 92 : 62, left: portrait ? 60 : 110, display: "flex", alignItems: "center", gap: 10, opacity: 0.75 }}>
-        <svg width="34" height="22" viewBox="0 0 34 22">
-          <path d="M2 18 H8 V4 L26 18 V4 H32" fill="none" stroke={theme.accent} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: 0.5, color: theme.ink }}>nemi</span>
+      <div style={{ position: "absolute", top: portrait ? 88 : 58, left: portrait ? 60 : 110, display: "flex", alignItems: "center", gap: 10, opacity: 0.85 }}>
+        <NemiMark size={30} />
+        <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.3, color: theme.ink }}>nemi</span>
       </div>
     </AbsoluteFill>
   );

@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "exports": {
-    ".": "./src/lib.ts"
+    ".": "./src/lib.ts",
+    "./mark": "./src/Mark.tsx"
   },
   "scripts": {
     "studio": "remotion studio src/index.ts",
