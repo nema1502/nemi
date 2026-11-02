@@ -151,6 +151,18 @@ cd engine && .venv/Scripts/python -m nemi.cli "Las partes de un volcán" --audie
 pnpm studio
 ```
 
+## Deploy
+
+The web app runs on Vercel and the engine on [Modal](https://modal.com): one image with Manim, LaTeX, ffmpeg
+and Remotion's headless Chrome, lessons on a Modal Volume, and the Meta key in a Modal secret.
+
+```bash
+modal secret create nemi-meta MODEL_API_KEY=...
+modal deploy engine/modal_app.py
+```
+
+Then set `NEXT_PUBLIC_ENGINE_URL` in Vercel to the engine's URL.
+
 ## Author
 
 **Nicolás Mejía Agreda**, founder of Nemi, Santa Cruz de la Sierra, Bolivia
