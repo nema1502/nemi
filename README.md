@@ -64,7 +64,7 @@ and hands the teacher a live editor before anything reaches the class.
   </tr>
   <tr>
     <td width="50%"><img src="docs/media/quiz.jpg" alt="Quiz scene"><br><sub><b>Quiz pauses.</b> On the student link the video stops and waits for an answer, then explains it.</sub></td>
-    <td width="50%"><img src="docs/media/studio.jpg" alt="Teacher studio"><br><sub><b>Teacher studio.</b> Live preview, the agent's reasoning as it works, and an editor for every scene.</sub></td>
+    <td width="50%"><img src="docs/media/studio.jpg" alt="Teacher studio"><br><sub><b>Teacher studio.</b> A lesson made from a PDF chapter: live preview, the agent's work step by step, and Muse Spark's review of the finished video.</sub></td>
   </tr>
 </table>
 
