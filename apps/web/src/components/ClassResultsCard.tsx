@@ -3,9 +3,11 @@
 import type { Lesson } from "@nemi/video";
 import { GraduationCap, Lightbulb, Loader2, Users } from "lucide-react";
 import { useState } from "react";
+import { useStudioCopy } from "@/lib/studioCopy";
 
 /** Nemi Classroom: what students answered on the student link, and what Muse Spark suggests to reteach. */
 export function ClassResultsCard({ lesson, onReteach }: { lesson: Lesson; onReteach?: () => Promise<void> }) {
+  const t = useStudioCopy().class;
   const [busy, setBusy] = useState(false);
   const quizzes = lesson.scenes.filter((s) => s.quiz);
   if (!quizzes.length) return null;
@@ -18,12 +20,12 @@ export function ClassResultsCard({ lesson, onReteach }: { lesson: Lesson; onRete
   return (
     <div className="mt-4 rounded-xl border border-line bg-panel/70 p-4">
       <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-teal">
-        <GraduationCap className="size-3.5" />Class results
-        <span className="ml-auto flex items-center gap-1 normal-case tracking-normal text-muted"><Users className="size-3.5" />{students.length} students</span>
+        <GraduationCap className="size-3.5" />{t.title}
+        <span className="ml-auto flex items-center gap-1 normal-case tracking-normal text-muted"><Users className="size-3.5" />{t.students(students.length)}</span>
       </p>
 
       {!answers.length ? (
-        <p className="mt-2 text-sm text-muted">Share the student link. Each student&apos;s quiz answers show up here as they watch.</p>
+        <p className="mt-2 text-sm text-muted">{t.empty}</p>
       ) : (
         <>
           <ul className="mt-3 space-y-3">
@@ -39,7 +41,7 @@ export function ClassResultsCard({ lesson, onReteach }: { lesson: Lesson; onRete
                 <li key={s.id} className="text-sm">
                   <div className="flex justify-between gap-3"><span className="font-semibold">{s.quiz!.question}</span><span className="text-muted">{right}/{got.length}</span></div>
                   <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-panel-2"><div className="h-full rounded-full bg-green" style={{ width: `${pct}%` }} /></div>
-                  {wrong && <p className="mt-1 text-xs text-amber">Most common wrong answer: {wrong.o} ({wrong.n})</p>}
+                  {wrong && <p className="mt-1 text-xs text-amber">{t.wrong} {wrong.o} ({wrong.n})</p>}
                 </li>
               );
             })}
@@ -58,17 +60,17 @@ export function ClassResultsCard({ lesson, onReteach }: { lesson: Lesson; onRete
 
           {insight ? (
             <div className="mt-4 rounded-xl bg-teal/10 p-3 text-sm">
-              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-teal"><Lightbulb className="size-3.5" />Muse Spark on what to reteach</p>
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-teal"><Lightbulb className="size-3.5" />{t.insight}</p>
               <p className="mt-1.5 leading-relaxed">{insight.summary}</p>
               <ul className="mt-2 list-inside list-disc space-y-1 text-muted">{insight.reteach.map((r) => <li key={r}>{r}</li>)}</ul>
-              <p className="mt-2"><span className="font-semibold">Open tomorrow with:</span> {insight.warmup_question}</p>
+              <p className="mt-2"><span className="font-semibold">{t.warmup}</span> {insight.warmup_question}</p>
             </div>
           ) : null}
           {onReteach && (
             <button className="btn-ghost mt-3 px-3 py-2 text-xs" disabled={thinking}
               onClick={async () => { setBusy(true); try { await onReteach(); } finally { setTimeout(() => setBusy(false), 4000); } }}>
               {thinking ? <Loader2 className="size-3.5 animate-spin" /> : <Lightbulb className="size-3.5" />}
-              {insight ? "Read the results again" : "What should I reteach?"}
+              {insight ? t.again : t.ask}
             </button>
           )}
         </>

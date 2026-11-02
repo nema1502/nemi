@@ -8,6 +8,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { api, asset, type ScenePatch } from "@/lib/engine";
+import { useStudioCopy } from "@/lib/studioCopy";
 import { Recorder } from "./Recorder";
 
 export const KIND: Record<Scene["kind"], { icon: typeof Brain; label: string }> = {
@@ -33,6 +34,7 @@ type Props = {
 };
 
 export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onChange, readOnly = false }: Props) {
+  const t = useStudioCopy().scene;
   const [draft, setDraft] = useState<ScenePatch>({});
   const [saving, setSaving] = useState(false);
   const [working, setWorking] = useState<string | null>(null);
@@ -74,11 +76,11 @@ export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onCh
         <span className="h-9 w-1 flex-none rounded-full" style={{ background: actColor(scene.act, lesson.theme) }} />
         <k.icon className="size-4 flex-none text-muted" />
         <span className="min-w-0 flex-1">
-          <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted">{index + 1}. {k.label}</span>
+          <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted">{index + 1}. {t.kinds[scene.kind]}</span>
           <span className="block truncate text-sm font-semibold">{scene.title}</span>
         </span>
         {pending && <Loader2 className="size-4 animate-spin text-violet" />}
-        {narr?.source === "teacher" && <span className="rounded bg-teal/15 px-1.5 py-0.5 text-[10px] font-bold text-teal">YOUR VOICE</span>}
+        {narr?.source === "teacher" && <span className="rounded bg-teal/15 px-1.5 py-0.5 text-[10px] font-bold text-teal">{t.yourVoiceBadge}</span>}
         <ChevronDown className={`size-4 text-muted transition ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -86,50 +88,50 @@ export function SceneEditor({ lesson, scene, index, open, onToggle, onSeek, onCh
         {open && (
           <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
             <div className="space-y-3 border-t border-line p-3">
-              <Field label="Title"><input className="field" value={v("title")} onChange={(e) => set({ title: e.target.value })} /></Field>
-              <Field label="Narration" hint={narr ? `${narr.duration.toFixed(1)}s, ${narr.source === "teacher" ? "your voice" : narr.voice}` : "voicing…"}>
+              <Field label={t.title}><input className="field" value={v("title")} onChange={(e) => set({ title: e.target.value })} /></Field>
+              <Field label={t.narration} hint={narr ? `${narr.duration.toFixed(1)}s, ${narr.source === "teacher" ? t.yourVoice : narr.voice}` : t.voicing}>
                 <textarea className="field min-h-24 resize-y leading-relaxed" value={v("narration")} onChange={(e) => set({ narration: e.target.value })} />
               </Field>
 
               {["concept", "image", "summary"].includes(scene.kind) && (
-                <Field label="On-screen lines">
+                <Field label={t.lines}>
                   <textarea className="field min-h-20" value={v("points").join("\n")} onChange={(e) => set({ points: e.target.value.split("\n") })} />
                 </Field>
               )}
               {scene.kind === "formula" && (
-                <Field label="LaTeX steps (one per line)">
+                <Field label={t.latex}>
                   <textarea className="field min-h-20 font-mono text-xs" value={v("latex").join("\n")} onChange={(e) => set({ latex: e.target.value.split("\n").filter(Boolean) })} />
                 </Field>
               )}
-              {scene.kind === "quiz" && scene.quiz && <QuizFields quiz={v("quiz")} onChange={(quiz) => set({ quiz })} />}
+              {scene.kind === "quiz" && scene.quiz && <QuizFields quiz={v("quiz")} onChange={(quiz) => set({ quiz })} labels={t} />}
               {scene.kind === "manim" && (
-                <Field label="What the animation shows">
+                <Field label={t.manim}>
                   <textarea className="field min-h-20 text-xs" value={v("manim_brief")} onChange={(e) => set({ manim_brief: e.target.value })} />
                 </Field>
               )}
               {["hook", "image", "diagram"].includes(scene.kind) && (
-                <Field label="Illustration prompt">
+                <Field label={t.prompt}>
                   <textarea className="field min-h-16 text-xs" value={v("image_prompt")} onChange={(e) => set({ image_prompt: e.target.value })} />
                 </Field>
               )}
 
-              {scene.kind === "diagram" && <DiagramStatus scene={scene} />}
-              {scene.kind === "manim" && <ManimStatus scene={scene} />}
+              {scene.kind === "diagram" && <DiagramStatus scene={scene} t={t} />}
+              {scene.kind === "manim" && <ManimStatus scene={scene} t={t} />}
 
               {!readOnly && <div className="flex flex-wrap gap-2 pt-1">
                 {dirty && (
                   <button onClick={save} disabled={saving} className="btn-primary">
-                    {saving ? <Loader2 className="size-4 animate-spin" /> : <Captions className="size-4" />}Save{draft.narration ? " & re-voice" : ""}
+                    {saving ? <Loader2 className="size-4 animate-spin" /> : <Captions className="size-4" />}{t.save}{draft.narration ? t.revoice : ""}
                   </button>
                 )}
                 {["hook", "image", "diagram"].includes(scene.kind) && (
                   <button className="btn-ghost" disabled={!!working || dirty} onClick={() => act("draw", () => api.redraw(lesson.id, scene.id))}>
-                    <RefreshCw className={`size-4 ${working === "draw" ? "animate-spin" : ""}`} />Redraw
+                    <RefreshCw className={`size-4 ${working === "draw" ? "animate-spin" : ""}`} />{t.redraw}
                   </button>
                 )}
                 {scene.kind === "manim" && (
                   <button className="btn-ghost" disabled={!!working || dirty} onClick={() => act("anim", () => api.animate(lesson.id, scene.id))}>
-                    <Clapperboard className="size-4" />Re-animate
+                    <Clapperboard className="size-4" />{t.reanimate}
                   </button>
                 )}
                 <Recorder script={v("narration")} onDone={async (blob) => onChange(await api.voice(lesson.id, scene.id, blob))} />
@@ -151,24 +153,26 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-function QuizFields({ quiz, onChange }: { quiz: NonNullable<Scene["quiz"]>; onChange: (q: NonNullable<Scene["quiz"]>) => void }) {
+type Labels = ReturnType<typeof useStudioCopy>["scene"];
+
+function QuizFields({ quiz, onChange, labels: t }: { quiz: NonNullable<Scene["quiz"]>; onChange: (q: NonNullable<Scene["quiz"]>) => void; labels: Labels }) {
   return (
     <div className="space-y-2">
-      <Field label="Question"><input className="field" value={quiz.question} onChange={(e) => onChange({ ...quiz, question: e.target.value })} /></Field>
+      <Field label={t.question}><input className="field" value={quiz.question} onChange={(e) => onChange({ ...quiz, question: e.target.value })} /></Field>
       {quiz.options.map((o, i) => (
         <div key={i} className="flex items-center gap-2">
           <input type="radio" checked={quiz.answer_index === i} onChange={() => onChange({ ...quiz, answer_index: i })} className="accent-[var(--green)]" />
           <input className="field" value={o} onChange={(e) => onChange({ ...quiz, options: quiz.options.map((x, j) => (j === i ? e.target.value : x)) })} />
         </div>
       ))}
-      <Field label="Explanation after the answer"><input className="field" value={quiz.explanation} onChange={(e) => onChange({ ...quiz, explanation: e.target.value })} /></Field>
+      <Field label={t.explanation}><input className="field" value={quiz.explanation} onChange={(e) => onChange({ ...quiz, explanation: e.target.value })} /></Field>
     </div>
   );
 }
 
-function DiagramStatus({ scene }: { scene: Scene }) {
+function DiagramStatus({ scene, t }: { scene: Scene; t: Labels }) {
   const r = scene.assets.regions;
-  if (!r.length) return <p className="flex items-center gap-2 text-xs text-muted"><Loader2 className="size-3 animate-spin" />Muse Spark + SAM 3.1 are finding the parts…</p>;
+  if (!r.length) return <p className="flex items-center gap-2 text-xs text-muted"><Loader2 className="size-3 animate-spin" />{t.finding}</p>;
   return (
     <div className="flex items-start gap-3 rounded-lg bg-black/20 p-2.5 text-xs">
       {scene.assets.image && (
@@ -176,7 +180,7 @@ function DiagramStatus({ scene }: { scene: Scene }) {
         <img src={asset(scene.assets.image)} alt="" className="w-20 rounded-md" />
       )}
       <div>
-        <p className="mb-1 flex items-center gap-1 font-semibold text-teal"><Shapes className="size-3.5" />SAM 3.1 cut out {r.filter((x) => x.path).length}/{r.length} parts</p>
+        <p className="mb-1 flex items-center gap-1 font-semibold text-teal"><Shapes className="size-3.5" />{t.cutOut(r.filter((x) => x.path).length, r.length)}</p>
         {r.map((x) => (
           <p key={x.label} className={x.path ? "text-muted" : "text-amber"}>{x.path ? "✓" : "✗"} {x.label}{x.confidence ? `, ${(x.confidence * 100).toFixed(0)}%` : ""}</p>
         ))}
@@ -185,18 +189,18 @@ function DiagramStatus({ scene }: { scene: Scene }) {
   );
 }
 
-function ManimStatus({ scene }: { scene: Scene }) {
+function ManimStatus({ scene, t }: { scene: Scene; t: Labels }) {
   const a = scene.assets.manim_attempts;
   if (!a.length) return null;
   return (
     <div className="rounded-lg bg-black/20 p-2.5 text-xs">
-      <p className="mb-1 font-semibold text-violet">Write, audit, repair</p>
+      <p className="mb-1 font-semibold text-violet">{t.manimSteps}</p>
       {a.map((x, i) => {
         const vision = x.warnings.some((w) => w.startsWith("vision check"));
-        const what = vision ? "Vision check" : `Auditor pass ${x.attempt}`;
+        const what = vision ? t.vision : t.pass(x.attempt);
         return (
           <p key={i} className={x.errors.length ? "text-amber" : "text-green"} title={x.errors.join("\n")}>
-            {what}: {x.errors.length ? `${x.errors.length} issue(s), repaired` : vision ? "looks right" : "clean"}
+            {what}: {x.errors.length ? t.issues(x.errors.length) : vision ? t.looksRight : t.clean}
           </p>
         );
       })}

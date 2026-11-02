@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { LessonPlayer } from "@/components/LessonPlayer";
 import { Logo } from "@/components/Logo";
 import { api, isDemo, useLessonLive } from "@/lib/engine";
+import { studentCopy } from "@/lib/studioCopy";
 
 /** What students open from the teacher's link: the lesson, pausing at every quiz for their answer. */
 export function Watch() {
@@ -19,6 +20,16 @@ export function Watch() {
       setName(localStorage.getItem("nemi-student") ?? "");
     } catch {}
   }, []);
+  // Students who leave the name empty still count one by one: each device keeps its own number
+  const [device, setDevice] = useState("");
+  useEffect(() => {
+    let n = String(1000 + Math.floor(Math.random() * 9000));
+    try {
+      n = localStorage.getItem("nemi-device") ?? n;
+      localStorage.setItem("nemi-device", n);
+    } catch {}
+    setDevice(n);
+  }, []);
   const saveName = (v: string) => {
     setName(v);
     try {
@@ -30,6 +41,7 @@ export function Watch() {
     return <div className="grid flex-1 place-items-center">{error ? <p className="text-red">{error}</p> : <Loader2 className="size-6 animate-spin text-muted" />}</div>;
   }
   const quizzes = lesson.scenes.filter((s) => s.kind === "quiz").length;
+  const t = studentCopy(lesson.language);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 px-4 py-6">
@@ -47,9 +59,9 @@ export function Watch() {
       </div>
       {quizzes > 0 && !isDemo(lesson.id) && (
         <label className="flex max-w-sm flex-col gap-1.5">
-          <span className="label">{lesson.language === "Spanish" ? "Tu nombre" : "Your name"}</span>
+          <span className="label">{t.name}</span>
           <input className="field" value={name} onChange={(e) => saveName(e.target.value)}
-            placeholder={lesson.language === "Spanish" ? "Para que tu profe vea tus respuestas" : "So your teacher sees your answers"} />
+            placeholder={t.namePh} />
         </label>
       )}
       <div className={lesson.format === "portrait" ? "mx-auto w-full max-w-[420px]" : ""}>
@@ -59,16 +71,15 @@ export function Watch() {
           onScore={setScore}
           onAnswer={(sceneId, picked) => {
             // Answers go to the teacher's Class results (not for the built-in examples)
-            if (!isDemo(lesson.id)) api.answer(lesson.id, { student: name, scene_id: sceneId, picked }).catch(() => {});
+            const student = name.trim() || `${t.anonymous} ${device}`;
+            if (!isDemo(lesson.id)) api.answer(lesson.id, { student, scene_id: sceneId, picked }).catch(() => {});
           }}
         />
       </div>
       {quizzes > 0 && (
         <p className="flex items-center gap-2 text-sm text-muted">
           <CircleHelp className="size-4 text-violet" />
-          {lesson.language === "Spanish"
-            ? `El video se detiene ${quizzes === 1 ? "una vez" : `${quizzes} veces`} para hacerte una pregunta.`
-            : `The video stops ${quizzes === 1 ? "once" : `${quizzes} times`} to ask you a question.`}
+          {t.stops(quizzes)} {t.start}
         </p>
       )}
     </main>

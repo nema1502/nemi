@@ -1,5 +1,7 @@
 # What the unit tests need (no Manim, no LaTeX): pip install -r requirements-dev.txt
 pytest>=8
+fastapi==0.162.0
+python-multipart>=0.0.20
 pydantic>=2.9
 openai==3.42.1
 httpx>=0.28

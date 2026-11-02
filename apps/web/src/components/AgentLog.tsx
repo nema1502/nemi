@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef } from "react";
+import { useStudioCopy } from "@/lib/studioCopy";
 
 const STEP: Record<string, { icon: typeof Brain; label: string; color: string }> = {
   read: { icon: BookOpen, label: "Reading", color: "text-teal" },
@@ -41,6 +42,7 @@ export function AgentLog({ lesson }: { lesson: Lesson }) {
 }
 
 function Row({ e }: { e: LessonEvent }) {
+  const labels = useStudioCopy().agent.steps;
   const s = STEP[e.step] ?? STEP.plan;
   const Icon = s.icon;
   const tone = e.level === "ok" ? "text-green" : e.level === "warn" ? "text-amber" : e.level === "error" ? "text-red" : s.color;
@@ -55,7 +57,7 @@ function Row({ e }: { e: LessonEvent }) {
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 text-sm">
       <Icon className={`mt-0.5 size-4 flex-none ${tone}`} />
       <p className="leading-snug">
-        <span className={`mr-1.5 text-[11px] font-bold uppercase tracking-wide ${tone}`}>{s.label}</span>
+        <span className={`mr-1.5 text-[11px] font-bold uppercase tracking-wide ${tone}`}>{labels[e.step] ?? s.label}</span>
         <span className="text-ink/90">{e.message}</span>
       </p>
     </motion.div>
@@ -63,11 +65,12 @@ function Row({ e }: { e: LessonEvent }) {
 }
 
 function Review({ review }: { review: NonNullable<Lesson["review"]> }) {
+  const t = useStudioCopy().agent;
   return (
     <details className="mt-3 rounded-xl border border-line bg-panel-2/70 p-3 text-sm">
       <summary className="cursor-pointer font-semibold">
-        First-draft review: {review.checks.filter((c) => c.verdict === "yes").length}/{review.checks.length} questions passed
-        {review.fact_issues.length > 0 && `, ${review.fact_issues.length} fact issues fixed`}
+        {t.draft(review.checks.filter((c) => c.verdict === "yes").length, review.checks.length)}
+        {review.fact_issues.length > 0 && t.facts(review.fact_issues.length)}
       </summary>
       <ul className="mt-2 space-y-2">
         {review.checks.map((c) => (
@@ -86,6 +89,7 @@ function Review({ review }: { review: NonNullable<Lesson["review"]> }) {
 
 /** Big centered view while the plan doesn't exist yet. */
 export function AgentStage({ lesson }: { lesson: Lesson }) {
+  const t = useStudioCopy().agent;
   const thoughts = lesson.events.filter((e) => e.step === "think").slice(-3);
   const last = [...lesson.events].reverse().find((e) => e.step !== "think");
   return (
@@ -99,8 +103,8 @@ export function AgentStage({ lesson }: { lesson: Lesson }) {
         </div>
       )}
       <div>
-        <p className="text-xl font-bold">{lesson.status === "error" ? "Something went wrong" : last?.message ?? "Starting…"}</p>
-        <p className="mt-1 text-sm text-muted">{lesson.error ?? (lesson.source_name ? `Reading ${lesson.source_name}` : lesson.topic)}</p>
+        <p className="text-xl font-bold">{lesson.status === "error" ? t.wrong : last?.message ?? t.starting}</p>
+        <p className="mt-1 text-sm text-muted">{lesson.error ?? (lesson.source_name ? t.reading(lesson.source_name) : lesson.topic)}</p>
       </div>
       <div className="w-full max-w-xl space-y-2">
         <AnimatePresence mode="popLayout">

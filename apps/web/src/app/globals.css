@@ -65,3 +65,16 @@ body {
 @utility label {
   @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted;
 }
+
+/* The studio guide lights up the part of the page each step talks about */
+.tour-focus {
+  outline: 2px solid var(--violet);
+  outline-offset: 4px;
+  border-radius: 16px;
+  animation: tour-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tour-pulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgb(167 139 250 / 0.18); }
+  50% { box-shadow: 0 0 0 14px rgb(167 139 250 / 0.06); }
+}

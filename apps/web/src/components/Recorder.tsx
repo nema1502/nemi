@@ -2,9 +2,11 @@
 
 import { Loader2, Mic, Square } from "lucide-react";
 import { useRef, useState } from "react";
+import { useStudioCopy } from "@/lib/studioCopy";
 
 /** Record a scene's narration in the teacher's own voice. */
 export function Recorder({ script, onDone }: { script: string; onDone: (audio: Blob) => Promise<void> }) {
+  const t = useStudioCopy().recorder;
   const [state, setState] = useState<"idle" | "recording" | "sending">("idle");
   const [seconds, setSeconds] = useState(0);
   const rec = useRef<MediaRecorder | null>(null);
@@ -35,16 +37,16 @@ export function Recorder({ script, onDone }: { script: string; onDone: (audio: B
   if (state === "recording") {
     return (
       <div className="rounded-xl border border-red/50 bg-red/10 p-3">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-red">Recording {seconds}s. Read this:</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-red">{t.recording(seconds)}</p>
         <p className="mb-3 text-sm leading-relaxed">{script}</p>
-        <button onClick={() => rec.current?.stop()} className="btn bg-red text-white"><Square className="size-4" />Stop</button>
+        <button onClick={() => rec.current?.stop()} className="btn bg-red text-white"><Square className="size-4" />{t.stop}</button>
       </div>
     );
   }
   return (
     <button onClick={start} disabled={state === "sending"} className="btn-ghost">
       {state === "sending" ? <Loader2 className="size-4 animate-spin" /> : <Mic className="size-4" />}
-      {state === "sending" ? "Muse Voice Transcribe is listening…" : "Record in my voice"}
+      {state === "sending" ? t.listening : t.record}
     </button>
   );
 }

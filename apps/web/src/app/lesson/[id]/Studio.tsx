@@ -2,17 +2,20 @@
 
 import { actColor, timeline, type Lesson } from "@nemi/video";
 import type { PlayerRef } from "@remotion/player";
-import { Check, Download, Film, Link2, Loader2, Monitor, Smartphone } from "lucide-react";
+import { Check, CircleHelp, Download, Film, Link2, Loader2, Monitor, Smartphone } from "lucide-react";
 import { motion } from "motion/react";
 import { useParams } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AgentLog, AgentStage } from "@/components/AgentLog";
 import { LessonPlayer } from "@/components/LessonPlayer";
 import { Logo } from "@/components/Logo";
 import { KIND, SceneEditor } from "@/components/SceneEditor";
 import { ClassResultsCard } from "@/components/ClassResultsCard";
+import { StudioTour, TOUR_SEEN } from "@/components/StudioTour";
 import { VideoReviewCard } from "@/components/VideoReviewCard";
 import { api, asset, busy, isDemo, useLessonLive } from "@/lib/engine";
+import { LangToggle } from "@/lib/i18n";
+import { useStudioCopy } from "@/lib/studioCopy";
 
 const THEMES = ["night", "chalk", "paper"];
 
@@ -24,6 +27,18 @@ export function Studio() {
   const [open, setOpen] = useState<string | null>(null);
   const [frame, setFrame] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [tour, setTour] = useState(false);
+  const t = useStudioCopy();
+  const ready = !!lesson?.scenes.length;
+  const onStep = useCallback((target: string) => setTab(target === "scenes" ? "scenes" : "agent"), []);
+
+  // The guide opens by itself once, the first time a lesson is ready to play
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      if (!localStorage.getItem(TOUR_SEEN)) setTour(true);
+    } catch {}
+  }, [ready]);
 
   const tl = useMemo(() => (lesson?.scenes.length ? timeline(lesson) : null), [lesson]);
   const current = tl?.items.findLast((i) => frame >= i.from)?.scene.id;
@@ -52,30 +67,32 @@ export function Studio() {
         <span className="hidden h-5 w-px bg-line sm:block" />
         <h1 className="min-w-0 flex-1 truncate text-lg font-bold">{lesson.title || lesson.topic || lesson.source_name}</h1>
         {demo ? (
-          <span className="rounded-full bg-violet/15 px-2.5 py-1 text-xs font-semibold text-violet">Example lesson, read-only</span>
+          <span className="rounded-full bg-violet/15 px-2.5 py-1 text-xs font-semibold text-violet">{t.example}</span>
         ) : (
           <>
-            <StatusPill lesson={lesson} working={working} />
+            <StatusPill lesson={lesson} working={working} labels={t.status} />
             <div className="flex rounded-xl border border-line bg-panel-2 p-1">
-              {THEMES.map((t) => (
-                <button key={t} onClick={() => patch({ theme: t })} className={`rounded-lg px-2.5 py-1 text-xs font-semibold capitalize ${lesson.theme.name === t ? "bg-violet text-[#120f22]" : "text-muted hover:text-ink"}`}>{t}</button>
+              {THEMES.map((th) => (
+                <button key={th} onClick={() => patch({ theme: th })} className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${lesson.theme.name === th ? "bg-violet text-[#120f22]" : "text-muted hover:text-ink"}`}>{t.themes[th] ?? th}</button>
               ))}
             </div>
-            <button className="btn-ghost px-3" title="Switch format" onClick={() => patch({ format: lesson.format === "landscape" ? "portrait" : "landscape" })}>
+            <button className="btn-ghost px-3" title={t.switchFormat} onClick={() => patch({ format: lesson.format === "landscape" ? "portrait" : "landscape" })}>
               {lesson.format === "landscape" ? <Monitor className="size-4" /> : <Smartphone className="size-4" />}
             </button>
           </>
         )}
-        <button className="btn-ghost" onClick={share} disabled={!lesson.scenes.length}>
-          {copied ? <Check className="size-4 text-green" /> : <Link2 className="size-4" />}Student link
+        <button className="btn-ghost" onClick={share} disabled={!lesson.scenes.length} data-tour="share">
+          {copied ? <Check className="size-4 text-green" /> : <Link2 className="size-4" />}{t.studentLink}
         </button>
-        {!demo && <ExportButton lesson={lesson} onStart={async () => setLesson(await api.render(lesson.id))} disabled={working} />}
+        {!demo && <ExportButton lesson={lesson} onStart={async () => setLesson(await api.render(lesson.id))} disabled={working} labels={t} />}
+        <button className="btn-ghost px-3" onClick={() => setTour(true)} disabled={!ready} title={t.guide}><CircleHelp className="size-4" /></button>
+        <LangToggle />
       </header>
 
       <div className="grid flex-1 gap-5 lg:grid-cols-[minmax(0,1fr)_400px]">
         <div className="min-w-0">
           {lesson.scenes.length ? (
-            <div className={lesson.format === "portrait" ? "mx-auto max-w-[440px]" : ""}>
+            <div className={lesson.format === "portrait" ? "mx-auto max-w-[440px]" : ""} data-tour="player">
               <LessonPlayer lesson={lesson} playerRef={player} onFrame={setFrame} />
             </div>
           ) : (
@@ -99,27 +116,29 @@ export function Studio() {
               })}
             </div>
           )}
+          <div data-tour={demo ? "export" : undefined}>
           <VideoReviewCard
             lesson={lesson}
             onSeek={(f) => { player.current?.seekTo(f); player.current?.play(); }}
             onWatchAgain={demo ? undefined : async () => { await api.watch(lesson.id); }}
             onImprove={demo ? undefined : async () => { await api.improve(lesson.id); }}
           />
+          </div>
           <ClassResultsCard lesson={lesson} onReteach={demo ? undefined : async () => { await api.reteach(lesson.id); }} />
           {lesson.objectives.length > 0 && (
             <div className="mt-4 rounded-xl border border-line bg-panel/60 p-4 text-sm">
-              <p className="label">Learning objectives</p>
+              <p className="label">{t.objectives}</p>
               <ul className="list-inside list-disc space-y-0.5 text-muted">{lesson.objectives.map((o) => <li key={o}>{o}</li>)}</ul>
             </div>
           )}
         </div>
 
-        <aside className="flex min-h-0 flex-col rounded-2xl border border-line bg-panel/70 lg:max-h-[calc(100vh-110px)]">
+        <aside className="flex min-h-0 flex-col rounded-2xl border border-line bg-panel/70 lg:max-h-[calc(100vh-110px)]" data-tour="scenes">
           <div className="flex gap-1 border-b border-line p-2">
-            {(["agent", "scenes"] as const).map((t) => (
-              <button key={t} onClick={() => setTab(t)} className={`relative flex-1 rounded-lg py-1.5 text-sm font-semibold capitalize ${tab === t ? "text-ink" : "text-muted"}`}>
-                {tab === t && <motion.span layoutId="tab" className="absolute inset-0 rounded-lg bg-panel-2" />}
-                <span className="relative">{t === "agent" ? "Agent" : `Scenes (${lesson.scenes.length})`}</span>
+            {(["agent", "scenes"] as const).map((k) => (
+              <button key={k} onClick={() => setTab(k)} className={`relative flex-1 rounded-lg py-1.5 text-sm font-semibold ${tab === k ? "text-ink" : "text-muted"}`}>
+                {tab === k && <motion.span layoutId="tab" className="absolute inset-0 rounded-lg bg-panel-2" />}
+                <span className="relative">{k === "agent" ? t.tabs.agent : `${t.tabs.scenes} (${lesson.scenes.length})`}</span>
               </button>
             ))}
           </div>
@@ -146,13 +165,14 @@ export function Studio() {
           </div>
         </aside>
       </div>
+      {tour && <StudioTour onClose={() => setTour(false)} onStep={onStep} />}
     </div>
   );
 }
 
-function StatusPill({ lesson, working }: { lesson: Lesson; working: boolean }) {
+function StatusPill({ lesson, working, labels }: { lesson: Lesson; working: boolean; labels: Record<string, string> }) {
   const label =
-    lesson.status === "error" ? "Error" : lesson.status === "rendering" ? "Rendering MP4" : working ? lesson.status === "ready" ? "Finishing scenes" : lesson.status : "Ready";
+    lesson.status === "error" ? labels.error : lesson.status === "rendering" ? labels.rendering : working ? lesson.status === "ready" ? labels.finishing : labels[lesson.status] ?? lesson.status : labels.ready;
   return (
     <span className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${lesson.status === "error" ? "bg-red/15 text-red" : working || lesson.status === "rendering" ? "bg-violet/15 text-violet" : "bg-green/15 text-green"}`}>
       {(working || lesson.status === "rendering") && lesson.status !== "error" ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
@@ -161,7 +181,7 @@ function StatusPill({ lesson, working }: { lesson: Lesson; working: boolean }) {
   );
 }
 
-function ExportButton({ lesson, onStart, disabled }: { lesson: Lesson; onStart: () => void; disabled: boolean }) {
+function ExportButton({ lesson, onStart, disabled, labels }: { lesson: Lesson; onStart: () => void; disabled: boolean; labels: { export: string; reexport: string } }) {
   if (lesson.status === "rendering") {
     const p = lesson.render_progress ?? 0;
     return (
@@ -172,12 +192,12 @@ function ExportButton({ lesson, onStart, disabled }: { lesson: Lesson; onStart: 
     );
   }
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2" data-tour="export">
       {lesson.video && (
         <a href={asset(lesson.video)} download className="btn-ghost"><Download className="size-4" />MP4</a>
       )}
       <button className="btn-primary" onClick={onStart} disabled={disabled || !lesson.scenes.length}>
-        <Film className="size-4" />{lesson.video ? "Re-export" : "Export MP4"}
+        <Film className="size-4" />{lesson.video ? labels.reexport : labels.export}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@
 import { FPS, type Lesson } from "@nemi/video";
 import { ArrowRight, ChevronDown, Eye, Loader2, RefreshCw, TriangleAlert, Wrench } from "lucide-react";
 import { useState } from "react";
+import { useStudioCopy } from "@/lib/studioCopy";
 
 const seconds = (time: string) => {
   const [m, s] = time.split(":").map(Number);
@@ -16,6 +17,7 @@ export function VideoReviewCard({ lesson, onSeek, onWatchAgain, onImprove }: {
   onWatchAgain?: () => Promise<void>;
   onImprove?: () => Promise<void>;
 }) {
+  const t = useStudioCopy().review;
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const r = lesson.video_review;
@@ -30,7 +32,7 @@ export function VideoReviewCard({ lesson, onSeek, onWatchAgain, onImprove }: {
     if (!watching) return null;
     return (
       <div className="mt-4 flex items-center gap-3 rounded-xl border border-violet/30 bg-violet/10 p-4 text-sm">
-        <Loader2 className="size-4 animate-spin text-violet" />Muse Spark is watching the whole video, picture and sound
+        <Loader2 className="size-4 animate-spin text-violet" />{t.watching}
       </div>
     );
   }
@@ -42,11 +44,11 @@ export function VideoReviewCard({ lesson, onSeek, onWatchAgain, onImprove }: {
           <span className={`text-2xl font-extrabold ${tone}`}>{r.score}</span>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-violet"><Eye className="size-3.5" />Muse Spark watched the video</p>
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-violet"><Eye className="size-3.5" />{t.watched}</p>
           <p className="mt-1 text-sm leading-relaxed">{r.summary}</p>
           {scores.length > 1 && (
             <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-muted">
-              Score history
+              {t.history}
               {scores.map((s, i) => (
                 <span key={i} className="flex items-center gap-1.5">
                   {i > 0 && <ArrowRight className="size-3" />}
@@ -57,7 +59,7 @@ export function VideoReviewCard({ lesson, onSeek, onWatchAgain, onImprove }: {
           )}
         </div>
         {onWatchAgain && (
-          <button className="btn-ghost px-2.5 py-1.5 text-xs" disabled={busy} title="Watch again"
+          <button className="btn-ghost px-2.5 py-1.5 text-xs" disabled={busy} title={t.again}
             onClick={async () => { setBusy(true); try { await onWatchAgain(); } finally { setBusy(false); } }}>
             <RefreshCw className={`size-3.5 ${busy ? "animate-spin" : ""}`} />
           </button>
@@ -82,13 +84,13 @@ export function VideoReviewCard({ lesson, onSeek, onWatchAgain, onImprove }: {
       {onImprove && r.notes.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-violet/10 p-3">
           {fixing ? (
-            <p className="flex items-center gap-2 text-sm"><Loader2 className="size-4 animate-spin text-violet" />Muse Spark is fixing its notes, rendering again and watching the new version</p>
+            <p className="flex items-center gap-2 text-sm"><Loader2 className="size-4 animate-spin text-violet" />{t.fixing}</p>
           ) : (
             <>
-              <p className="flex-1 text-sm text-muted">Muse Spark can fix these notes itself, render again and watch the result.</p>
+              <p className="flex-1 text-sm text-muted">{t.canFix}</p>
               <button className="btn-primary px-3 py-2 text-xs" disabled={busy}
                 onClick={async () => { setBusy(true); try { await onImprove(); } finally { setBusy(false); } }}>
-                <Wrench className="size-3.5" />Let Muse Spark fix these
+                <Wrench className="size-3.5" />{t.fix}
               </button>
             </>
           )}
@@ -96,7 +98,7 @@ export function VideoReviewCard({ lesson, onSeek, onWatchAgain, onImprove }: {
       )}
       {r.strengths.length > 0 && (
         <button onClick={() => setOpen(!open)} className="mt-3 flex items-center gap-1 text-xs font-semibold text-muted hover:text-ink">
-          <ChevronDown className={`size-3.5 transition ${open ? "rotate-180" : ""}`} />What works ({r.strengths.length})
+          <ChevronDown className={`size-3.5 transition ${open ? "rotate-180" : ""}`} />{t.works} ({r.strengths.length})
         </button>
       )}
       {open && <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted">{r.strengths.map((s) => <li key={s}>{s}</li>)}</ul>}
