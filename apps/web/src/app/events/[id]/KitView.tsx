@@ -10,6 +10,7 @@ import { Logo } from "@/components/Logo";
 import { api, asset, ENGINE, useKitLive } from "@/lib/engine";
 import { useEventsCopy } from "@/lib/eventsCopy";
 import { LangToggle } from "@/lib/i18n";
+import { useLogText } from "@/lib/studioCopy";
 
 type Format = keyof typeof EVENT_FORMATS;
 const VIEWS = { EventGrid, EventCover, EventAvatar, EventStory };
@@ -38,6 +39,7 @@ export function KitView() {
   const { id } = useParams<{ id: string }>();
   const { kit, error } = useKitLive(id);
   const t = useEventsCopy();
+  const say = useLogText();
   const [exporting, setExporting] = useState(false);
 
   if (!kit) {
@@ -80,7 +82,7 @@ export function KitView() {
           <ul className="space-y-1.5 text-sm">
             {kit.events.map((e, i) => (
               <li key={i} className={e.step === "think" ? "ml-5 border-l border-violet/30 pl-3 text-xs italic text-muted" : e.level === "ok" ? "text-green" : e.level === "warn" ? "text-amber" : e.level === "error" ? "text-red" : "text-ink/90"}>
-                {e.message}
+                {say(e.message)}
               </li>
             ))}
           </ul>
