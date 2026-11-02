@@ -90,21 +90,21 @@ export function LessonPlayer({ lesson, interactive = false, captions = true, pla
         spaceKeyToPlayOrPause={!open}
         acknowledgeRemotionLicense
       />
-      <AnimatePresence>{open && <QuizOverlay scene={open.scene} picked={picked} onPick={answer} />}</AnimatePresence>
+      <AnimatePresence>{open && <QuizOverlay scene={open.scene} picked={picked} onPick={answer} spanish={lesson.language === "Spanish"} />}</AnimatePresence>
     </div>
   );
 }
 
-function QuizOverlay({ scene, picked, onPick }: { scene: Scene; picked: number | null; onPick: (i: number) => void }) {
+function QuizOverlay({ scene, picked, onPick, spanish }: { scene: Scene; picked: number | null; onPick: (i: number) => void; spanish: boolean }) {
   const quiz = scene.quiz!;
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 bg-[#0b0a16]/85 p-6 backdrop-blur-sm"
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 bg-[#0b0a16]/95 p-6 backdrop-blur-md"
     >
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber">Your turn</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber">{spanish ? "Tu turno" : "Your turn"}</p>
       <h3 className="max-w-2xl text-center text-xl font-bold sm:text-2xl">{quiz.question}</h3>
       <div className="grid w-full max-w-2xl gap-3 sm:grid-cols-2">
         {quiz.options.map((o, i) => {
@@ -134,7 +134,7 @@ function QuizOverlay({ scene, picked, onPick }: { scene: Scene; picked: number |
       </div>
       {picked !== null && (
         <motion.p initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className={`text-lg font-bold ${picked === quiz.answer_index ? "text-green" : "text-amber"}`}>
-          {picked === quiz.answer_index ? "Correct!" : "Not quite. Watch why."}
+          {picked === quiz.answer_index ? (spanish ? "¡Correcto!" : "Correct!") : (spanish ? "Casi. Mira por qué." : "Not quite. Watch why.")}
         </motion.p>
       )}
     </motion.div>

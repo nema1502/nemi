@@ -38,7 +38,10 @@ export function Watch() {
       </div>
       {quizzes > 0 && (
         <p className="flex items-center gap-2 text-sm text-muted">
-          <CircleHelp className="size-4 text-violet" />The video stops {quizzes === 1 ? "once" : `${quizzes} times`} to ask you a question.
+          <CircleHelp className="size-4 text-violet" />
+          {lesson.language === "Spanish"
+            ? `El video se detiene ${quizzes === 1 ? "una vez" : `${quizzes} veces`} para hacerte una pregunta.`
+            : `The video stops ${quizzes === 1 ? "once" : `${quizzes} times`} to ask you a question.`}
         </p>
       )}
     </main>
