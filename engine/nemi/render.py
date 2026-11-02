@@ -4,8 +4,9 @@ import asyncio
 import json
 import subprocess
 import time
+from pathlib import Path
 
-from . import config, store
+from . import config, store, watch
 from .store import Editor, folder, log, rel
 
 _slot = asyncio.Semaphore(1)
@@ -48,12 +49,33 @@ async def render(lesson_id: str) -> None:
         try:
             await asyncio.to_thread(_run, props, out, on_progress)
             async with Editor(lesson_id) as l:
-                l.video, l.status, l.render_progress = rel(out), "ready", 1.0
+                l.video, l.status, l.render_progress, l.video_review = rel(out), "ready", 1.0, None
             await log(lesson_id, "render", "MP4 ready to download", "ok")
         except Exception as e:
             async with Editor(lesson_id) as l:
                 l.status, l.render_progress = "ready", None
             await log(lesson_id, "error", str(e)[-400:], "error")
+            return
+    await review(lesson_id)
+
+
+async def review(lesson_id: str) -> None:
+    """Muse Spark watches the finished video and leaves notes with timestamps."""
+    lesson = store.load(lesson_id)
+    if not lesson.video:
+        return
+    mp4 = folder(lesson_id).parent / Path(lesson.video).relative_to("files")
+    await log(lesson_id, "watch", "Muse Spark is watching the whole video, picture and sound")
+    try:
+        r = await watch.review(lesson, mp4)
+    except Exception as e:
+        await log(lesson_id, "watch", f"Video review failed: {str(e)[:200]}", "warn")
+        return
+    async with Editor(lesson_id) as l:
+        l.video_review = r
+    major = sum(n.severity == "major" for n in r.notes)
+    await log(lesson_id, "watch", f"Muse Spark watched the video: {r.score}/10, {len(r.notes)} notes"
+                                  + (f" ({major} important)" if major else ""), "ok" if r.score >= 7 else "warn")
 
 
 async def _progress(lesson_id: str, p: float) -> None:

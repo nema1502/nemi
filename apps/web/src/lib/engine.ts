@@ -52,6 +52,7 @@ export const api = {
     return call<Lesson>(`/api/lessons/${id}/scenes/${sid}/voice`, { method: "POST", body: form });
   },
   render: (id: string) => call<Lesson>(`/api/lessons/${id}/render`, { method: "POST" }),
+  watch: (id: string) => call(`/api/lessons/${id}/watch`, { method: "POST" }),
   remove: (id: string) => call(`/api/lessons/${id}`, { method: "DELETE" }),
 };
 

@@ -129,7 +129,8 @@ def _render(path: Path, cls: str, media: Path) -> Path:
     # frame extractor can't seek reliably in Manim's own encoding.
     clip = media / "clip.mp4"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-an", "-c:v", "libx264",
-                    "-pix_fmt", "yuv420p", "-r", "30", "-g", "30", "-crf", "18", "-movflags", "+faststart",
+                    "-pix_fmt", "yuv420p", "-r", "30", "-bf", "0", "-x264-params", "keyint=30:min-keyint=30:scenecut=0",
+                    "-crf", "18", "-movflags", "+faststart",
                     str(clip)], check=True)
     return clip
 

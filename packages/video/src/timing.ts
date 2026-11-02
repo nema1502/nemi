@@ -3,7 +3,7 @@ import type { Lesson, Scene, SceneKind, Word } from "./types";
 export const FPS = 30;
 export const LEAD = 0.35; // quiet before the voice starts, so each scene can land first
 export const TAIL = 0.65;
-export const THINK = 5; // quiz: seconds students get to think
+export const THINK = 8; // quiz: seconds students get to think (5 was too short for 10-year-olds)
 
 const MIN_SECONDS: Record<SceneKind, number> = {
   hook: 4, concept: 4, image: 4, diagram: 6, formula: 5, manim: 4, quiz: 4, summary: 5,

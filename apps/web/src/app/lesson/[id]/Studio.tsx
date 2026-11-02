@@ -10,6 +10,7 @@ import { AgentLog, AgentStage } from "@/components/AgentLog";
 import { LessonPlayer } from "@/components/LessonPlayer";
 import { Logo } from "@/components/Logo";
 import { KIND, SceneEditor } from "@/components/SceneEditor";
+import { VideoReviewCard } from "@/components/VideoReviewCard";
 import { api, asset, busy, isDemo, useLessonLive } from "@/lib/engine";
 
 const THEMES = ["night", "chalk", "paper"];
@@ -97,6 +98,11 @@ export function Studio() {
               })}
             </div>
           )}
+          <VideoReviewCard
+            lesson={lesson}
+            onSeek={(f) => { player.current?.seekTo(f); player.current?.play(); }}
+            onWatchAgain={demo ? undefined : async () => { await api.watch(lesson.id); }}
+          />
           {lesson.objectives.length > 0 && (
             <div className="mt-4 rounded-xl border border-line bg-panel/60 p-4 text-sm">
               <p className="label">Learning objectives</p>

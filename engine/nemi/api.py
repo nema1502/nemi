@@ -212,6 +212,16 @@ async def render_video(lesson_id: str):
     return store.load(lesson_id)
 
 
+@app.post("/api/lessons/{lesson_id}/watch")
+async def watch_video(lesson_id: str):
+    """Ask Muse Spark to watch the latest MP4 again."""
+    lesson = _get(lesson_id)
+    if not lesson.video:
+        raise HTTPException(400, "Export the MP4 first")
+    _spawn(render.review(lesson_id))
+    return {"ok": True}
+
+
 @app.delete("/api/lessons/{lesson_id}")
 def delete_lesson(lesson_id: str):
     import shutil

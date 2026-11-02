@@ -101,6 +101,20 @@ async def think_text(*, system: str, content: list[dict], model: str = config.CO
     return resp.output_text
 
 
+# ---------------------------------------------------------------- Files API
+
+async def upload_file(raw: bytes, filename: str, mime: str) -> str:
+    f = await client.files.create(file=(filename, raw, mime), purpose="user_data")
+    return f.id
+
+
+async def delete_file(file_id: str) -> None:
+    try:
+        await client.files.delete(file_id)
+    except Exception:
+        pass  # storage is cleaned up eventually; a failed delete must not fail the review
+
+
 # ---------------------------------------------------------------- Muse Image
 
 async def draw(prompt: str, size: str) -> bytes:

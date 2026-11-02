@@ -143,6 +143,20 @@ THEMES: dict[str, Theme] = {
 }
 
 
+class VideoNote(BaseModel):
+    time: str = Field(description="m:ss in the video")
+    issue: str
+    fix: str
+    severity: Literal["minor", "major"]
+
+
+class VideoReview(BaseModel):
+    score: int = Field(description="1 to 10")
+    summary: str
+    strengths: list[str]
+    notes: list[VideoNote]
+
+
 class Event(BaseModel):
     t: float
     step: str
@@ -176,6 +190,7 @@ class Lesson(BaseModel):
     # outputs
     events: list[Event] = []
     video: str | None = None
+    video_review: VideoReview | None = None
     render_progress: float | None = None
     error: str | None = None
 
