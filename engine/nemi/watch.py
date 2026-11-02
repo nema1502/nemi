@@ -23,8 +23,24 @@ Watch the whole video and listen to the narration. Judge it as a lesson, not as 
 
 Score it from 1 to 10. List what works, and up to 6 notes, each with the time (m:ss) where it happens,
 what the problem is and a concrete fix. Only real problems; if the video is good, say so with few notes.
+
+You also get the exact script: the narration and every line of text shown on screen. Its spelling and accents
+are already checked, and small accent marks are hard to see in sampled frames, so never report spelling or
+missing accents. Use the script to judge timing and clarity.
+
 Write everything in {lesson.language} with correct spelling, including every accent and special letter
 of that language. Avoid em dashes and guillemets."""
+
+
+def _script(lesson: Lesson) -> str:
+    lines = []
+    for i, s in enumerate(lesson.scenes, 1):
+        shown = [s.title, *s.points, *(s.diagram_parts and [p.label for p in s.diagram_parts] or [])]
+        if s.quiz:
+            shown += [s.quiz.question, *s.quiz.options, s.quiz.explanation]
+        narration = s.assets.narration.text if s.assets.narration else s.narration
+        lines.append(f"Scene {i} ({s.kind}). On screen: {' / '.join(x for x in shown if x)}. Voice: {narration}")
+    return "\n".join(lines)
 
 
 async def review(lesson: Lesson, mp4: Path) -> VideoReview:
@@ -33,7 +49,7 @@ async def review(lesson: Lesson, mp4: Path) -> VideoReview:
         r = await meta.think_json(
             VideoReview,
             system=_system(lesson),
-            content=[{"type": "input_text", "text": f"Lesson: {lesson.title}. Review this video."},
+            content=[{"type": "input_text", "text": f"Lesson: {lesson.title}.\n\nScript:\n{_script(lesson)}\n\nReview this video."},
                      {"type": "input_file", "file_id": file_id}],
             model=WATCH_MODEL,
             effort="medium",
