@@ -56,8 +56,11 @@ async def review(lesson: Lesson, mp4: Path) -> VideoReview:
         )
     finally:
         await meta.delete_file(file_id)
-    r.summary = clean(r.summary)
-    r.strengths = clean_all(r.strengths)
-    for n in r.notes:
-        n.issue, n.fix = clean(n.issue), clean(n.fix)
+    # Structured output sometimes drops accents: one proofreading pass over every visible line
+    texts = [r.summary, *r.strengths, *[x for n in r.notes for x in (n.issue, n.fix)]]
+    fixed = clean_all(await meta.respell(texts, lesson.language))
+    r.summary, r.strengths = fixed[0], fixed[1:1 + len(r.strengths)]
+    rest = fixed[1 + len(r.strengths):]
+    for i, n in enumerate(r.notes):
+        n.issue, n.fix = rest[2 * i], rest[2 * i + 1]
     return r

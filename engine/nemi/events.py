@@ -170,11 +170,14 @@ async def design(kit_id: str, logos: list[bytes]) -> None:
             meta.think_json(WordsSpec, system=DESIGNER, content=[{"type": "input_text", "text": notes}], effort="medium"),
         )
         spec = EventKitSpec(**design_.model_dump(), **words.model_dump())
-        spec.tagline = clean(spec.tagline)
-        spec.grid_captions = clean_all((spec.grid_captions + [""] * 9)[:9])
-        spec.story_lines = clean_all((spec.story_lines + ["", "", ""])[:3])
-        for k in ("instagram", "x", "linkedin", "whatsapp", "luma"):
-            setattr(spec.copies, k, clean(getattr(spec.copies, k)))
+        spec.grid_captions = (spec.grid_captions + [""] * 9)[:9]
+        spec.story_lines = (spec.story_lines + ["", "", ""])[:3]
+        keys = ("instagram", "x", "linkedin", "whatsapp", "luma")
+        texts = [spec.tagline, *spec.grid_captions, *spec.story_lines, *(getattr(spec.copies, k) for k in keys)]
+        fixed = clean_all(await meta.respell(texts, kit.language))
+        spec.tagline, spec.grid_captions, spec.story_lines = fixed[0], fixed[1:10], fixed[10:13]
+        for k, text in zip(keys, fixed[13:]):
+            setattr(spec.copies, k, text)
 
         def put_spec(k: EventKit):
             k.spec, k.status = spec, "drawing"

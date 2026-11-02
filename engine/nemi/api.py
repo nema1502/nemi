@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 from typing import Literal
 
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -22,6 +22,34 @@ app.mount("/files", StaticFiles(directory=config.LESSONS), name="files")
 app.mount("/event-files", StaticFiles(directory=ev.EVENTS), name="event-files")
 
 _tasks: set[asyncio.Task] = set()
+
+# A public demo spends Meta credits, so creation is capped per visitor and per day
+PER_VISITOR_PER_HOUR = 8
+PER_DAY = 150
+_hits: dict[str, list[float]] = {}
+
+
+def _visitor(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for", "")
+    return forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+
+
+def _limit(request: Request) -> None:
+    now = time.time()
+    mine = [t for t in _hits.get(_visitor(request), []) if now - t < 3600]
+    everyone = [t for t in _hits.get("*", []) if now - t < 86400]
+    if len(mine) >= PER_VISITOR_PER_HOUR:
+        raise HTTPException(429, "You have created a lot in the last hour. Please try again in a little while.")
+    if len(everyone) >= PER_DAY:
+        raise HTTPException(429, "Nemi reached today's limit for the public demo. Please come back tomorrow.")
+    _hits[_visitor(request)] = mine + [now]
+    _hits["*"] = everyone + [now]
+
+
+@app.get("/api/whoami")
+def whoami(request: Request):
+    return {"visitor": _visitor(request)}
+
 
 INTERRUPTED = "The engine restarted while this was being made. Please create it again."
 
@@ -73,6 +101,7 @@ def options():
 
 @app.post("/api/lessons")
 async def create_lesson(
+    request: Request,
     topic: str = Form(""),
     audience: str = Form("Students"),
     language: str = Form("Spanish"),
@@ -91,6 +120,7 @@ async def create_lesson(
         pdf = (raw, file.filename)
     if not topic.strip() and not pdf:
         raise HTTPException(400, "Give a topic or attach a PDF")
+    _limit(request)
     lesson = Lesson(topic=topic.strip(), audience=audience, language=language, voice=voice, format=format,
                     theme=THEMES.get(theme, THEMES["night"]), source_name=pdf[1] if pdf else None,
                     planner="muse-wonder-1.0" if deep else config.PLANNER_MODEL)
@@ -263,6 +293,7 @@ def delete_lesson(lesson_id: str):
 
 @app.post("/api/events")
 async def create_event(
+    request: Request,
     name: str = Form(...),
     date: str = Form(""),
     place: str = Form(""),
@@ -275,6 +306,7 @@ async def create_event(
 
     from PIL import Image, UnidentifiedImageError
 
+    _limit(request)
     kit = ev.EventKit(name=name.strip(), date=date.strip(), place=place.strip(), description=description.strip(),
                       community=community.strip(), language=language)
     folder_ = ev.folder(kit.id)

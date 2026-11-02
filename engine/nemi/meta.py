@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import json
+import re
 from collections.abc import Awaitable, Callable
 from typing import TypeVar
 
@@ -99,6 +100,26 @@ async def think_text(*, system: str, content: list[dict], model: str = config.CO
         reasoning={"effort": effort}, max_output_tokens=max_output_tokens,
     )
     return resp.output_text
+
+
+async def respell(texts: list[str], language: str) -> list[str]:
+    """Structured output sometimes comes back without accents; a free-text proofreading pass puts them back.
+    Returns the originals if anything looks off (different length, not a list of strings)."""
+    if not texts:
+        return texts
+    ask = (f"Fix only spelling and missing accents in these {language} texts. Do not change wording, order or "
+           "punctuation, and keep regional words as written (Latin American 'video' stays 'video'). Return only a "
+           "JSON array of strings with the same length and order.\n"
+           + json.dumps(texts, ensure_ascii=False))
+    try:
+        out = await think_text(system="You are a careful proofreader.", content=[{"type": "input_text", "text": ask}],
+                               model=config.CODER_MODEL, effort="low", max_output_tokens=8000)
+        fixed = json.loads(re.search(r"\[.*\]", out, re.S).group(0))
+        if isinstance(fixed, list) and len(fixed) == len(texts) and all(isinstance(x, str) for x in fixed):
+            return fixed
+    except Exception:
+        pass
+    return texts
 
 
 # ---------------------------------------------------------------- Files API
