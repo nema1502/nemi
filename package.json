@@ -1,0 +1,11 @@
+{
+  "name": "nemi",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:engine": "cd engine && .venv/Scripts/python -m uvicorn nemi.api:app --port 8000",
+    "studio": "pnpm --filter @nemi/video studio",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "packageManager": "pnpm@12.11.2"
+}

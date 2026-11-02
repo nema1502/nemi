@@ -1,0 +1,32 @@
+{
+  "name": "@nemi/video",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/lib.ts"
+  },
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Lesson",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/google-fonts": "4.0.539",
+    "@remotion/paths": "4.0.539",
+    "katex": "0.19.1",
+    "remotion": "4.0.539",
+    "@remotion/bundler": "4.0.539",
+    "@remotion/renderer": "4.0.539"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@remotion/cli": "4.0.539",
+    "@types/react": "^19",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "typescript": "^5"
+  }
+}

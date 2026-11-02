@@ -1,3 +1,25 @@
+# secrets
 .env
 .env.*
 !.env.example
+
+# deps & builds
+node_modules/
+.next/
+packages/video/build/
+packages/video/out/
+*.tsbuildinfo
+
+# python
+engine/.venv/
+__pycache__/
+*.py[cod]
+
+# generated lessons (images, audio, clips, renders)
+engine/data/
+
+.DS_Store
+Thumbs.db
+
+# manim caches when run from the engine folder
+engine/media/
