@@ -97,6 +97,7 @@ export type Lesson = {
   events: LessonEvent[];
   video: string | null;
   video_review: VideoReview | null;
+  review_scores: number[];
   render_progress: number | null;
   error: string | null;
 };

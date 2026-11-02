@@ -73,6 +73,7 @@ async def review(lesson_id: str) -> None:
         return
     async with Editor(lesson_id) as l:
         l.video_review = r
+        l.review_scores = [*l.review_scores, r.score]
     major = sum(n.severity == "major" for n in r.notes)
     await log(lesson_id, "watch", f"Muse Spark watched the video: {r.score}/10, {len(r.notes)} notes"
                                   + (f" ({major} important)" if major else ""), "ok" if r.score >= 7 else "warn")

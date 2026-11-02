@@ -192,6 +192,7 @@ class Lesson(BaseModel):
     events: list[Event] = []
     video: str | None = None
     video_review: VideoReview | None = None
+    review_scores: list[int] = []  # every score Muse Spark gave, oldest first
     render_progress: float | None = None
     error: str | None = None
 

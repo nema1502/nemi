@@ -102,6 +102,7 @@ export function Studio() {
             lesson={lesson}
             onSeek={(f) => { player.current?.seekTo(f); player.current?.play(); }}
             onWatchAgain={demo ? undefined : async () => { await api.watch(lesson.id); }}
+            onImprove={demo ? undefined : async () => { await api.improve(lesson.id); }}
           />
           {lesson.objectives.length > 0 && (
             <div className="mt-4 rounded-xl border border-line bg-panel/60 p-4 text-sm">

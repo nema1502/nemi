@@ -2,7 +2,7 @@
 
 import type { Lesson, LessonEvent } from "@nemi/video";
 import {
-  BookOpen, Brain, CircleCheck, Eye, Clapperboard, Film, ListChecks, Loader2, Mic, ScanSearch, Sparkles, TriangleAlert, WandSparkles,
+  BookOpen, Brain, CircleCheck, Eye, Wrench, Clapperboard, Film, ListChecks, Loader2, Mic, ScanSearch, Sparkles, TriangleAlert, WandSparkles,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef } from "react";
@@ -18,6 +18,7 @@ const STEP: Record<string, { icon: typeof Brain; label: string; color: string }>
   voice: { icon: Mic, label: "Voice", color: "text-teal" },
   render: { icon: Film, label: "Remotion", color: "text-teal" },
   watch: { icon: Eye, label: "Muse Spark", color: "text-violet" },
+  fix: { icon: Wrench, label: "Fixing", color: "text-violet" },
   done: { icon: CircleCheck, label: "Done", color: "text-green" },
   error: { icon: TriangleAlert, label: "Problem", color: "text-red" },
 };

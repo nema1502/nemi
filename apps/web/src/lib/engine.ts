@@ -53,6 +53,7 @@ export const api = {
   },
   render: (id: string) => call<Lesson>(`/api/lessons/${id}/render`, { method: "POST" }),
   watch: (id: string) => call(`/api/lessons/${id}/watch`, { method: "POST" }),
+  improve: (id: string) => call(`/api/lessons/${id}/improve`, { method: "POST" }),
   remove: (id: string) => call(`/api/lessons/${id}`, { method: "DELETE" }),
   createEvent: (form: FormData) => call<EventKit>("/api/events", { method: "POST", body: form }),
   getEvent: (id: string) => call<EventKit>(`/api/events/${id}`),

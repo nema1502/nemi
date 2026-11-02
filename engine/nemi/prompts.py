@@ -34,7 +34,9 @@ Scene kinds you can use (pick the one that SHOWS the idea best, with something v
   counting, fractions...). manim_brief: describe exactly what appears and moves, step by step, in a way a
   Manim programmer can implement in 10-25 seconds of animation. Use at most 2 per lesson.
 - quiz: a multiple-choice check. quiz: question, 3-4 options, answer_index (0-based), explanation.
-  narration = the question read aloud, inviting students to pause and think. Use 1-2 per lesson.
+  narration = the question read aloud, inviting students to think while the on-screen countdown runs
+  (never tell them to pause the video: the countdown gives them time, and the student link pauses on its own).
+  Use 1-2 per lesson.
 - summary: the closing. title + 2-4 points that recap, and the narration ends with an open question
   students can answer from their own experience.
 """

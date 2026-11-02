@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import config, pipeline, render, store, voice
+from . import config, improve, pipeline, render, store, voice
 from . import events as ev
 from .schema import THEMES, DiagramPartSpec, Lesson, QuizSpec, Scene
 from .store import Editor, folder, log, rel
@@ -280,6 +280,17 @@ async def watch_video(lesson_id: str):
     _spawn(render.review(lesson_id))
     return {"ok": True}
 
+
+@app.post("/api/lessons/{lesson_id}/improve")
+async def improve_lesson(lesson_id: str):
+    """Muse Spark fixes the notes it left on the video, renders again and watches the new version."""
+    lesson = _get(lesson_id)
+    if not lesson.video_review or not lesson.video_review.notes:
+        raise HTTPException(400, "There are no notes to fix yet")
+    if lesson.status == "rendering":
+        raise HTTPException(409, "Already working on it")
+    _spawn(improve.improve(lesson_id))
+    return {"ok": True}
 
 @app.delete("/api/lessons/{lesson_id}")
 def delete_lesson(lesson_id: str):
