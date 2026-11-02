@@ -8,14 +8,16 @@ import { useEffect, useState } from "react";
 import { api, asset, isDemo, type LessonCard } from "@/lib/engine";
 import { useCopy, useLang } from "@/lib/i18n";
 
-const DEMOS = ["demo", "demo-en"];
+// Read-only examples shipped with the site, in public/<id>/
+const DEMOS = ["demo", "demo-en", "demo-pitagoras", "demo-photosynthesis", "demo-tierra", "demo-sistema-solar"];
+const TAG: Record<string, string> = { Spanish: "ES", English: "EN", Portuguese: "PT" };
 
 async function demoCard(id: string): Promise<LessonCard | null> {
   try {
     const l: Lesson = await (await fetch(`/${id}/lesson.json`)).json();
     return {
       id, title: l.title, status: "ready", created_at: l.created_at, format: l.format, theme: l.theme.name,
-      scenes: l.scenes.length, cover: l.scenes.find((s) => s.assets.image)?.assets.image ?? null,
+      scenes: l.scenes.length, cover: l.scenes.find((s) => s.assets.image)?.assets.image ?? null, language: l.language,
     };
   } catch {
     return null;
@@ -33,8 +35,9 @@ export function Gallery() {
     api.list().then(setMine).catch(() => {});
   }, []);
 
-  const preferred = lang === "es" ? "demo" : "demo-en";
-  const items = [...demos.filter((d) => d.id === preferred), ...demos.filter((d) => d.id !== preferred), ...mine];
+  // Examples in the page's language first
+  const own = lang === "es" ? "Spanish" : "English";
+  const items = [...demos.filter((d) => d.language === own), ...demos.filter((d) => d.language !== own), ...mine];
   if (!items.length) return null;
 
   return (
@@ -53,7 +56,7 @@ export function Gallery() {
                 )}
                 {isDemo(l.id) && (
                   <span className="absolute left-2 top-2 rounded-full bg-violet px-2 py-0.5 text-[11px] font-bold text-[#120f22]">
-                    {t.gallery.example} {l.id === "demo" ? "ES" : "EN"}
+                    {t.gallery.example} {TAG[l.language ?? ""] ?? ""}
                   </span>
                 )}
                 {l.status !== "ready" && (

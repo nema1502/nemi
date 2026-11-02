@@ -43,3 +43,17 @@ def test_revision_is_needed_for_any_doubt_or_fact_issue():
     assert not needs_revision(ReviewSpec(checks=[ok], fact_issues=[]))
     assert needs_revision(ReviewSpec(checks=[ok, doubt], fact_issues=[]))
     assert needs_revision(ReviewSpec(checks=[ok], fact_issues=["lava is not a part"]))
+
+
+def test_question_marks_only_ever_change_punctuation(monkeypatch):
+    import asyncio
+    import json
+
+    from nemi import meta
+
+    async def model(**kw):
+        # One line gets its marks, the other comes back with a word changed and must be ignored
+        return json.dumps(["¿Qué es la lava?", "A noite chega escura?"])
+    monkeypatch.setattr(meta, "think_text", model)
+    out = asyncio.run(meta.question_marks(["Qué es la lava.", "À noite chega escura."], "Spanish"))
+    assert out == ["¿Qué es la lava?", "À noite chega escura."]

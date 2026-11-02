@@ -25,6 +25,22 @@ _slots = asyncio.Semaphore(4)
 
 
 async def speak(text: str, voice: str, out_mp3: Path, rate: str = "+0%") -> Narration:
+    # The speech service drops a connection now and then: try again before a scene is left silent
+    for attempt in range(3):
+        try:
+            words, audio = await _stream(text, voice, rate)
+            break
+        except Exception:
+            if attempt == 2:
+                raise
+            await asyncio.sleep(2 + 3 * attempt)
+    out_mp3.parent.mkdir(parents=True, exist_ok=True)
+    out_mp3.write_bytes(audio)
+    duration = await asyncio.to_thread(probe_duration, out_mp3)
+    return Narration(audio="", duration=duration, words=words, voice=voice, source="tts", text=text)
+
+
+async def _stream(text: str, voice: str, rate: str) -> tuple[list[Word], bytes]:
     words: list[Word] = []
     audio = bytearray()
     async with _slots:
@@ -36,10 +52,9 @@ async def speak(text: str, voice: str, out_mp3: Path, rate: str = "+0%") -> Narr
                 start = chunk["offset"] / _TICKS
                 words.append(Word(text=chunk["text"], start=round(start, 3),
                                   end=round(start + chunk["duration"] / _TICKS, 3)))
-    out_mp3.parent.mkdir(parents=True, exist_ok=True)
-    out_mp3.write_bytes(bytes(audio))
-    duration = await asyncio.to_thread(probe_duration, out_mp3)
-    return Narration(audio="", duration=duration, words=words, voice=voice, source="tts", text=text)
+    if not audio:
+        raise RuntimeError("the speech service returned no audio")
+    return words, bytes(audio)
 
 
 def probe_duration(path: Path) -> float:

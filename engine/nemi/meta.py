@@ -122,6 +122,27 @@ async def respell(texts: list[str], language: str) -> list[str]:
     return texts
 
 
+async def question_marks(texts: list[str], language: str) -> list[str]:
+    """Plans often write a spoken question with a period. Captions show the narration as written, so the marks go back
+    in before the voice reads it. Only punctuation may change: a line whose letters changed is kept as it was."""
+    if not texts:
+        return texts
+    ask = (f"These are {language} lines a narrator reads to students. Wherever a sentence asks something, make it end "
+           "with a question mark; in Spanish also open it with the inverted question mark, and open exclamations with "
+           "the inverted exclamation mark. Change nothing else: not a letter, not an accent, not a word. Return only a "
+           "JSON array of strings with the same length and order.\n" + json.dumps(texts, ensure_ascii=False))
+    try:
+        out = await think_text(system="You are a careful proofreader.", content=[{"type": "input_text", "text": ask}],
+                               model=config.CODER_MODEL, effort="low", max_output_tokens=8000)
+        fixed = json.loads(re.search(r"\[.*\]", out, re.S).group(0))
+    except Exception:
+        return texts
+    if not (isinstance(fixed, list) and len(fixed) == len(texts) and all(isinstance(x, str) for x in fixed)):
+        return texts
+    letters = lambda s: re.sub(r"\W", "", s).lower()
+    return [f if letters(f) == letters(o) else o for f, o in zip(fixed, texts)]
+
+
 # ---------------------------------------------------------------- Files API
 
 async def upload_file(raw: bytes, filename: str, mime: str) -> str:

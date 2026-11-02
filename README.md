@@ -117,8 +117,8 @@ and up to four logos, and Nemi drafts the whole launch kit in one style.
 ```mermaid
 flowchart LR
   T([Teacher: PDF or topic]) --> W[apps/web<br/>Next.js studio]
-  W -- REST --> E[engine<br/>FastAPI]
-  E --> P[Plan, review, revise<br/>Muse Spark]
+  W -- REST --> E[engine<br/>FastAPI on Modal]
+  E --> P[Plan, review, revise<br/>Muse Spark or Wonder]
   P --> S{every scene<br/>in parallel}
   S --> I[Muse Image] --> D[Muse Spark boxes<br/>SAM 3.1 masks]
   S --> V[Narration +<br/>word timings]
@@ -126,8 +126,14 @@ flowchart LR
   D & V & M --> L[(lesson.json<br/>+ assets)]
   L --> R[packages/video<br/>Remotion composition]
   R -- Player --> W
-  R -- renderMedia --> MP4([MP4 and<br/>student link])
+  R -- renderMedia --> MP4([MP4])
+  MP4 --> Q[Muse Spark watches it<br/>notes by the minute]
+  Q -- fix its own notes --> S
+  MP4 --> K([Student link]) --> A[Answers] --> C[Muse Spark:<br/>what to reteach]
 ```
+
+The full picture, with the deployment, a lesson's states, the four review loops and the guard rails, is in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 | Folder | What it is |
 |---|---|
@@ -145,7 +151,7 @@ Judges: here is exactly what is new and what isn't.
 - **New, built from October 26 to November 4, 2026: everything else.** The lesson agent and its review loop, every Meta Model API integration,
   the Muse Spark and SAM 3.1 diagram pipeline, the self-repairing Manim loop, teacher voice transcription, the video review by
   Muse Spark and its self-fixing loop, class results with reteach suggestions, one art style per lesson, deep mode with Muse Wonder, the Remotion composition and all its scenes, Nemi for events,
-  the engine API, the web studio and the deployment on Modal and Vercel.
+  the engine API, the web studio in Spanish and English with its first-visit guide, the tests and the deployment on Modal and Vercel.
 
 ## Run it locally
 

@@ -67,7 +67,7 @@ async def create(lesson_id: str, *, length: str, pdf: tuple[bytes, str] | None) 
             plan = await planner.revise(plan, review, topic=lesson.topic, length=length,
                                         on_thought=thought, model=lesson.planner, **common)
             await log(lesson_id, "review", "Plan revised", "ok")
-        plan = planner.tidy(plan)
+        plan = await planner.proofread(planner.tidy(plan), lesson.language)
 
         async with Editor(lesson_id) as l:
             l.title, l.subtitle = plan.title, plan.subtitle

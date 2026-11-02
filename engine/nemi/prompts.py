@@ -53,6 +53,8 @@ Field rules:
 - act maps the scene to the five-act arc: anchor -> crack -> key -> proof -> thread.
 - Punctuation is plain in everything students see or hear: commas, periods, colons, question and
   exclamation marks, straight quotes. Never em dashes, guillemets, middle dots, arrow symbols or emojis.
+  A sentence that asks something ends with a question mark (in Spanish it also opens with one), because
+  captions show the narration exactly as written and the voice reads it as a question.
 - art_direction: one consistent illustration style for the whole lesson, suited to the audience
   (e.g. "flat vector illustration, soft shadows, warm friendly colors, clean shapes").
 """

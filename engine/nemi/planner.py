@@ -65,6 +65,19 @@ def needs_revision(r: ReviewSpec) -> bool:
     return bool(r.fact_issues) or any(c.verdict != "yes" for c in r.checks)
 
 
+async def proofread(p: LessonPlanSpec, language: str) -> LessonPlanSpec:
+    """Captions show the narration exactly as written, so questions need their marks before the voice reads them."""
+    fields: list[tuple[object, str]] = [(p, "title"), (p, "subtitle")]
+    for s in p.scenes:
+        fields += [(s, "title"), (s, "narration")]
+        if s.quiz:
+            fields += [(s.quiz, "question"), (s.quiz, "explanation")]
+    fixed = clean_all(await meta.question_marks([getattr(o, f) for o, f in fields], language))
+    for (o, f), text in zip(fields, fixed):
+        setattr(o, f, text)
+    return p
+
+
 def tidy(p: LessonPlanSpec) -> LessonPlanSpec:
     """Guard rails on what the model returned, so the renderer never gets an impossible scene."""
     p.title, p.subtitle = clean(p.title), clean(p.subtitle)

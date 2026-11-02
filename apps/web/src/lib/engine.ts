@@ -30,6 +30,7 @@ export type LessonCard = {
   theme: string;
   scenes: number;
   cover: string | null;
+  language?: string;
 };
 
 export type ScenePatch = Partial<Pick<Scene, "title" | "narration" | "points" | "image_prompt" | "latex" | "manim_brief" | "diagram_parts">> & {
